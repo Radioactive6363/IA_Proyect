@@ -19,8 +19,7 @@ public class MovePlayerState : State<PlayerStates>
         if (_controllerInput.MoveAxis != Vector2.zero)
         {
             Vector3 dir = new Vector3(_controllerInput.MoveAxis.x, 0, _controllerInput.MoveAxis.y);
-            _move.Move(dir.normalized);
-            //_move.Look(dir);
+            _move.Move(dir);
         }
         else
             _fsm.SetState(PlayerStates.Idle);

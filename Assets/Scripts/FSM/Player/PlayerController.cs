@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour, IControllerInput
 {
+    [SerializeField] PlayerCamera cameraController;
     private FSM<PlayerStates> _fsm;
     private IMove _move;
     private PlayerInputSystemActions inputActions;
@@ -10,6 +11,11 @@ public class PlayerController : MonoBehaviour, IControllerInput
     private void Awake()
     {
         inputActions = new PlayerInputSystemActions();
+        if (cameraController != null)
+        {
+            cameraController.AssignInputActions(inputActions);
+        }
+        
     }
     
     private void Start()
