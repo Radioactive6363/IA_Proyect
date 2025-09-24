@@ -1,43 +1,46 @@
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IControllerInput
 {
-    [SerializeField] private StateSO<PlayerController> initialState;
-    private FSM<PlayerController> fsm;
-
-    private IMove move;
-    public Vector2 InputAxis { get; private set; }
-    
+    private FSM<PlayerStates> _fsm;
+    private IMove _move;
     private PlayerInputSystemActions inputActions;
+    public Vector2 MoveAxis { get; set; }
 
     private void Awake()
     {
-        move = GetComponent<IMove>();
         inputActions = new PlayerInputSystemActions();
-    }
-    
-    private void OnEnable()
-    {
-        inputActions.Player.Enable();
-        inputActions.Player.Move.performed += ctx => InputAxis = ctx.ReadValue<Vector2>();
-        inputActions.Player.Move.canceled += _ => InputAxis = Vector2.zero;
-    }
-
-    private void OnDisable()
-    {
-        inputActions.Player.Disable();
     }
     
     private void Start()
     {
-        fsm = new FSM<PlayerController>(this, initialState);
-    }
-
-    private void Update()
-    {
-        fsm.Update();
+        _move = GetComponent<IMove>();
+        SetFSM();
     }
     
-    public void Move(Vector3 dir) => move.Move(dir);
-    public void Look(Vector3 dir) => move.LookAtDir(dir);
+    private void OnEnable()
+    {
+        inputActions.Enable();
+        inputActions.Player.Move.performed += ctx => MoveAxis = ctx.ReadValue<Vector2>();
+        inputActions.Player.Move.canceled += _ => MoveAxis = Vector2.zero;
+    }
+
+    public void SetFSM()
+    {
+        _fsm = new();
+        var idle = new IdlePlayerState(_fsm, _move, this);
+        var move = new MovePlayerState(_fsm, _move, this);
+
+        idle.AddTransition(PlayerStates.Moving, move);
+
+        move.AddTransition(PlayerStates.Idle, idle);
+
+        _fsm.SetInitialState(idle);
+    }
+
+    void Update()
+    {
+        _fsm.OnUpdate();
+    }
+    
 }

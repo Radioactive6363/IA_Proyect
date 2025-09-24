@@ -1,6 +1,10 @@
-public interface IState<TOwner>
+
+public interface IState<T>
 {
-    void Enter(TOwner owner);
-    void Execute(TOwner owner);
-    void Exit(TOwner owner);
+    void Enter();
+    void Execute();
+    void Exit();
+
+    void AddTransition(T input, IState<T> state);
+    bool GetState(T input, out IState<T> state);
 }

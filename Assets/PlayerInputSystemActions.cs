@@ -84,7 +84,7 @@ public partial class @PlayerInputSystemActions: IInputActionCollection2, IDispos
     /// </summary>
     public @PlayerInputSystemActions()
     {
-        asset = InputActionAsset.FromJson(@"{
+            asset = InputActionAsset.FromJson(@"{
     ""name"": ""PlayerInputSystemActions"",
     ""maps"": [
         {

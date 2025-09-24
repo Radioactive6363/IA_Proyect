@@ -1,31 +1,35 @@
-public class FSM<TOwner>
+using UnityEngine;
+
+public class FSM<T>
 {
-    private StateSO<TOwner> currentState;
-    private TOwner owner;
+    IState<T> current;
 
-    public FSM(TOwner owner, StateSO<TOwner> initialState)
+    public FSM() { }
+    public FSM(IState<T> current)
     {
-        this.owner = owner;
-        ChangeState(initialState);
+        this.current = current;
+        current.Enter();
     }
 
-    public void Update()
+    public void SetInitialState(IState<T> current)
     {
-        foreach (var t in currentState.Transitions)
+        this.current = current;
+        current.Enter();
+    }
+
+    public void OnUpdate()
+    {
+        current.Execute();
+    }
+
+    public void SetState(T input)
+    {
+        if(current.GetState(input, out IState<T> newState))
         {
-            if (t.condition != null && t.condition.Evaluate(owner))
-            {
-                ChangeState(t.target);
-                break;
-            }
+            current.Exit();
+            current = newState;
+            current.Enter();
         }
-        currentState.Execute(owner);
     }
 
-    private void ChangeState(StateSO<TOwner> newState)
-    {
-        currentState?.Exit(owner);
-        currentState = newState;
-        currentState.Enter(owner);
-    }
 }
