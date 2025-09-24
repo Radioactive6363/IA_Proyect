@@ -1,10 +1,10 @@
-using UnityEngine;
 
-public interface IState
+public interface IState<T>
 {
-    FSM fsm { get; }
-
     void Enter();
     void Execute();
     void Exit();
+
+    void AddTransition(T input, IState<T> state);
+    bool GetState(T input, out IState<T> state);
 }
