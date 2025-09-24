@@ -1,10 +1,6 @@
-using UnityEngine;
-
-public interface IState
+public interface IState<TOwner>
 {
-    FSM fsm { get; }
-
-    void Enter();
-    void Execute();
-    void Exit();
+    void Enter(TOwner owner);
+    void Execute(TOwner owner);
+    void Exit(TOwner owner);
 }
