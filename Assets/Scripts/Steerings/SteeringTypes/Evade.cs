@@ -28,25 +28,25 @@ public class Evade : ISteering
         var dist = (target.position - npcTransform.position).magnitude;
         var futureTargetPosition = target.position + rb.linearVelocity * timePrediction * dist;
 
-        var dirFromPoint = npcTransform.position - futureTargetPosition; // Dirección = PosiciónInicial - PosiciónFinal 
-        var dirFromTarget = npcTransform.position - target.position; // Dirección = PosiciónInicial - PosiciónFinal
+        var dirFromPoint = npcTransform.position - futureTargetPosition; // Direcciï¿½n = Posiciï¿½nInicial - Posiciï¿½nFinal 
+        var dirFromTarget = npcTransform.position - target.position; // Direcciï¿½n = Posiciï¿½nInicial - Posiciï¿½nFinal
 
         //if(Vector3.Dot(dirToPoint, dirToTarget) < 0)
         //{
         //    dirToPoint = dirToTarget;
         //}
-        Debug.DrawRay(npcTransform.position, dirFromPoint, Color.darkRed);
+        Debug.DrawRay(npcTransform.position, dirFromPoint, Color.green);
 
         var dotRemaped = (Vector3.Dot(dirFromPoint, dirFromTarget) + 1) / 2;
         dirFromPoint = Vector3.Lerp(dirFromPoint, dirFromTarget, dotRemaped);
 
-        var desiredVelocity = dirFromPoint.normalized * maxSpeed; // velocidad deseada = dirección normalizada * velocidad máxima
-        Vector3 steering = desiredVelocity - currentVelocity; // corrección de velocidad = velocidad deseada - actual
+        var desiredVelocity = dirFromPoint.normalized * maxSpeed; // velocidad deseada = direcciï¿½n normalizada * velocidad mï¿½xima
+        Vector3 steering = desiredVelocity - currentVelocity; // correcciï¿½n de velocidad = velocidad deseada - actual
 
 
-        Debug.DrawRay(npcTransform.position, dirFromPoint, Color.orange);
+        Debug.DrawRay(npcTransform.position, dirFromPoint, Color.green);
         Debug.DrawRay(npcTransform.position, dirFromTarget, Color.yellow);
-        return currentVelocity += steering * Time.deltaTime; // a la velocidad actual se le suma la corrección (aceleración) * tiempo (Time.deltaTime)
+        return currentVelocity += steering * Time.deltaTime; // a la velocidad actual se le suma la correcciï¿½n (aceleraciï¿½n) * tiempo (Time.deltaTime)
 
 
     }

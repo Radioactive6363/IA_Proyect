@@ -7,7 +7,7 @@ public abstract class State<T> : IState<T>
     protected FSM<T> _fsm;
     public virtual void Enter()
     {
-        Debug.Log("Entered: " + this);
+        //Debug.Log("Entered: " + this);
     }
 
     public virtual void Execute()
@@ -17,7 +17,7 @@ public abstract class State<T> : IState<T>
 
     public virtual void Exit()
     {
-        Debug.Log("Exited: " + this);
+        //Debug.Log("Exited: " + this);
     }
 
     public void AddTransition(T input, IState<T> state)
