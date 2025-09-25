@@ -1,7 +1,8 @@
+using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Rigidbody),typeof(FOV))]
 public class EnemyPatrol : MonoBehaviour
 {
 
@@ -12,17 +13,28 @@ public class EnemyPatrol : MonoBehaviour
     [SerializeField] private float waitTimeAtWaypoint = 2f;
 
 
+    [Header("HUIDA")]
+    [SerializeField] private float fleedistance = 5f;
 
     private int currentWP = 0;
     private Rigidbody rb;
+    private FOV fov;
+    private Transform Target;
     private bool waiting= false;
     private float waitTimer = 0f;
+   
 
 
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        fov = GetComponent<FOV>();
+
+        if (fov.Target != null)
+        {
+            Target = fov.Target.transform;
+        }
 
         if (waypoints == null || waypoints.Length == 0)
         {
@@ -34,68 +46,42 @@ public class EnemyPatrol : MonoBehaviour
     private void FixedUpdate()
     {
 
-
-        if (waiting)
+        if(fov!= null&& fov.CheckDetection() && Target!=null)
         {
-            WaitAtWayPoint();
+            FleeFromTarget();
         }
         else
         {
-            MoveTowardsWayPoint();
+            Patrol();
         }
        
     }
 
-
-
-    private void MoveTowardsWayPoint()
+    private void FleeFromTarget()
     {
-        Transform targetWP = waypoints[currentWP];
-        Vector3 dir = targetWP.position - transform.position;
-        Vector3 dirY = new Vector3(dir.x, 0f, dir.z);
+        if (Target == null) return;
 
-        // Verificar si llegó al waypoint
-        if (dirY.magnitude < reachdistance)
+        // Dirección para huir
+        Vector3 fleeDir = rb.position - Target.position;
+        fleeDir.y = 0f;
+
+        // Movimiento hacia atrás
+        fleeDir.Normalize();
+        rb.MovePosition(rb.position + fleeDir * movespeed * Time.fixedDeltaTime);
+
+        // Rotación para mirar al jugador
+        Vector3 lookDir = Target.position - rb.position;
+        lookDir.y = 0f;
+        if (lookDir != Vector3.zero)
         {
-            waiting = true;
-            waitTimer = 0f;
-            rb.MovePosition(rb.position); // detenerse completamente
-            return;
-        }
-
-        // Movimiento
-        Vector3 move = dirY.normalized * movespeed * Time.fixedDeltaTime;
-        rb.MovePosition(rb.position + move);
-
-        // Rotación suave solo en eje Y
-        if (dirY != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(dirY.normalized);
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 5f));
+            Quaternion lookRotation = Quaternion.LookRotation(lookDir);
+            rb.MoveRotation(Quaternion.Slerp(rb.rotation, lookRotation, 5f * Time.fixedDeltaTime));
         }
     }
-    private void WaitAtWayPoint()
-    {
 
-        waitTimer += Time.fixedDeltaTime;
 
-        Transform nextWP= waypoints[(currentWP+1)  % waypoints.Length];
-        Vector3 dirY = new Vector3(nextWP.position.x-transform.position.y,0f, nextWP.position.z-transform.position.z).normalized;
-        if(dirY != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(dirY);
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 5f));
-        }
 
-        rb.MovePosition(rb.position);
-
-        if(waitTimer>= waitTimeAtWaypoint)
-        {
-            waiting = false;
-            currentWP=(currentWP+1)%waypoints.Length;
-        }
-
-    }
+ 
     private void Patrol()
     {
 
