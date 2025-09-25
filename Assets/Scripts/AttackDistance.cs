@@ -18,12 +18,11 @@ public class AttackHitbox : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        IDamageable damageable = other.GetComponent<IDamageable>();
+        if (damageable != null)
         {
-            Debug.Log("Player hit! -" + damage + " HP");
-            // acá podrías llamar a un script de vida del jugador, por ejemplo:
-            // other.GetComponent<PlayerHealth>()?.TakeDamage(damage);
-            Destroy(gameObject);
+            damageable.OnDamage(10f);
+            Debug.Log($"{other.name} recibió 10 de daño");
         }
     }
 }

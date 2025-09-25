@@ -1,8 +1,10 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class PlayerModel : MonoBehaviour, IMove, IDetectable
+public class PlayerModel : MonoBehaviour, IMove, IDetectable, IDamageable
 {
     [SerializeField] private float _movementSmoothness = 0.25f;
+    [SerializeField] float life = 100f;
     Rigidbody _rb;
     private Vector3 desiredDir;
     private Vector3 velocity;
@@ -30,7 +32,20 @@ public class PlayerModel : MonoBehaviour, IMove, IDetectable
         velocity = Vector3.Lerp(_rb.linearVelocity, targetVel, _movementSmoothness);
         _rb.linearVelocity = velocity;
     }
+
+    public void OnDamage(float damage)
+    {
+        life -= damage;
+        if (life <= 0)
+        {
+            OnDeath();
+        }
+    }
+
+    public void OnDeath()
+    {
+        SceneManager.LoadScene("GameOver");
+    }
     
     public bool IsDetectable => _isDetectable;
-    
 }
