@@ -54,7 +54,7 @@ public class RatTree : BaseTree
 
     protected override void CreateTree()
     {
-        ActionNode patrol = new(Patrol);
+        ActionNode patrol = new(Wandering);
         ActionNode idle = new(Idle);
         ActionNode runAway = new(RunAway);
         ActionNode scared = new(Scared);
@@ -75,9 +75,9 @@ public class RatTree : BaseTree
         );
     }
 
-    private void Patrol()
+    private void Wandering()
     {
-        Debug.Log("Rat Patrolling");
+        Debug.Log("Rat Wandering");
         velocity = arrive.GetSteerDir(velocity);
         velocity.y = rb.linearVelocity.y;
         rb.linearVelocity = velocity;
@@ -92,7 +92,7 @@ public class RatTree : BaseTree
             if (chance < 0.5f)
             {
                 Debug.Log("Rat staying idle");
-                idleTimerHandler = idleTime; // se queda quieta cierto tiempo
+                idleTimerHandler = idleTime;
             }
             else
             {
@@ -101,7 +101,7 @@ public class RatTree : BaseTree
                 currentWP = 0;
                 arrive.SetTarget = waypoints[currentWP];
 
-                idleTimerHandler = 0; // 👈 importante: liberar timer para no quedarse bloqueada
+                idleTimerHandler = 0;
             }
         }
         else
