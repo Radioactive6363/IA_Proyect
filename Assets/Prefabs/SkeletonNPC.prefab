@@ -220,5 +220,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   isAlive: 1
+  attackVisual: {fileID: 4968668175436690522, guid: 177504fe4a01c3d4b9b17bef84cb4952, type: 3}
+  attackDuration: 2
   canAttack: 0
+  attackForce: 3
   attackCooldown: 2

@@ -62,6 +62,11 @@ public class RatTree : BaseTree
             CreateWaypoints();
             UpdateWaypoints();
         }
+        else
+        {
+            currentWP = 0;
+            arrive = new Arrive(waypoints[currentWP], transform, maxSpeed, arriveRange);
+        }
 
         flee = new Flee(player.transform, transform, fleeSpeed);
         arrive = new Arrive(waypoints[currentWP], transform, maxSpeed, arriveRange);
