@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Rigidbody))]
 public class RatTree : BaseTree
@@ -8,8 +9,7 @@ public class RatTree : BaseTree
     [SerializeField] private float maxIdleTime = 4f;
     [SerializeField] private float maxSpeed = 3f;
     [SerializeField] private float fleeSpeed = 6f;
-    [SerializeField] private float maxPersuitSpeed = 5f;
-    [SerializeField] float fleeDistance = 20f;
+    [SerializeField] float awarnessDistance = 20f;
     [SerializeField] float scaredDuration = 2f;
 
     [Header("Steering")] 
@@ -37,10 +37,10 @@ public class RatTree : BaseTree
     private ObstacleAvoidance avoidance;
 
     private Vector3 velocity;
-    private float idleTimerHandler = 0f;
+    private float idleTimerHandler;
+    private bool isScared;
+    private float scaredTimer;
     private bool isWaiting = false;
-    private bool isScared = false;
-    private float scaredTimer = 0f;
 
     protected override void Start()
     {
@@ -68,7 +68,7 @@ public class RatTree : BaseTree
     protected override void Update()
     {
         Debug.Log(
-            $"{name} tick - isScared={isScared} idleTimer={idleTimerHandler} distToPlayer={(player ? Vector3.Distance(transform.position, player.transform.position) : -1)}");
+            $"{name} tick, currentWaypoint= {waypoints[currentWP]} isScared={isScared} idleTimer={idleTimerHandler} distToPlayer={(player ? Vector3.Distance(transform.position, player.transform.position) : -1)}");
         base.Update();
     }
 
@@ -76,8 +76,8 @@ public class RatTree : BaseTree
     {
         ActionNode patrol = new(Wandering);
         ActionNode idle = new(Idle);
-        ActionNode runAway = new(RunAway);
         ActionNode scared = new(Scared);
+        ActionNode runAway = new(RunAway);
         
         QuestionNode arrivedAtPoint = new(
             () => Vector3.Distance(transform.position, waypoints[currentWP].position) < 0.3f,
@@ -85,13 +85,13 @@ public class RatTree : BaseTree
         );
         
         QuestionNode isPlayerClose = new(
-            () => Vector3.Distance(transform.position, player.transform.position) < fleeDistance,
-            runAway, arrivedAtPoint
+            () => Vector3.Distance(transform.position, player.transform.position) < awarnessDistance,
+            scared, arrivedAtPoint
         );
         
         _rootNode = new QuestionNode(
             () => isScared,
-            scared, isPlayerClose
+            runAway, isPlayerClose
         );
     }
 
@@ -129,27 +129,18 @@ public class RatTree : BaseTree
         }
     }
 
-    private void RunAway()
+    private void Scared()
     {
-        Debug.Log("Rat running Away, generating waypoints");
         if (!isScared)
         {
-            Scare();
+            Debug.Log("Rat Scared");
+            scaredTimer = scaredDuration;
+            idleTimerHandler = 0;
+            isScared = true;
         }
-        velocity = flee.GetSteerDir(velocity);
-        velocity.y = rb.linearVelocity.y;
-        Movement();
     }
 
-    public void Scare(float duration = -1f)
-    {
-        Debug.Log("Rat Scared");
-        isScared = true;
-        scaredTimer = (duration > 0) ? duration : scaredDuration;
-        idleTimerHandler = 0;
-    }
-
-    private void Scared()
+    private void RunAway()
     {
         if (scaredTimer <= 0)
         {
@@ -157,17 +148,16 @@ public class RatTree : BaseTree
             isScared = false;
             return;
         }
-
-        scaredTimer -= Time.deltaTime;
         velocity = flee.GetSteerDir(velocity);
         velocity.y = rb.linearVelocity.y;
         Movement();
+        scaredTimer -= Time.deltaTime;
     }
 
     private void Movement()
     {
         velocity = avoidance.GetDir2(velocity);
-        transform.position += velocity * Time.deltaTime;
+        rb.linearVelocity = velocity;
     }
     
     private void CreateWaypoints()

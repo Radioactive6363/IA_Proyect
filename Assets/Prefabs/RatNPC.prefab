@@ -154,16 +154,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 681488e66ad18c14d95d7e5318c3f5c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idleTime: 4
+  minIdleTime: 1
+  maxIdleTime: 4
   maxSpeed: 1
   fleeSpeed: 5
-  fleeDistance: 5
+  awarnessDistance: 20
   scaredDuration: 3
   waypoints: []
   currentWP: 0
   arriveRange: 1
   autoWaypointCount: 5
   autoWaypointRadius: 10
+  avoidanceRange: 10
+  avoidanceAngle: 10
+  personalArea: 5
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 8
+  squeakSounds: []
 --- !u!54 &8159616210475671854
 Rigidbody:
   m_ObjectHideFlags: 0
