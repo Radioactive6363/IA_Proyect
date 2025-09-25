@@ -1,35 +1,29 @@
-using System;
 using UnityEngine;
 
-public class NPCTree : MonoBehaviour
+public class BaseTree : MonoBehaviour
 {
+    [Header("Stats")]
     [SerializeField] int health;
     [SerializeField] int maxHealth;
     [SerializeField] FOV fieldOfView;
-    [SerializeField] GameObject target;
-    [SerializeField] Transform[] waypoints;
-    [SerializeField] int currentWP;
     [SerializeField] float attackRange;
     [SerializeField] float maxSpeed;
     [SerializeField] Vector3 velocity;
     [SerializeField, Range(0, 100)] int lowHealthThreshold;
+    
+    [Header("Steering")]
+    [SerializeField] GameObject target;
+    [SerializeField] Transform[] waypoints;
+    [SerializeField] int currentWP;
     [SerializeField] float arriveRange;
+    
     private ITreeNode _rootNode;
-
-    public delegate void MiDelegado();
-    public MiDelegado _miDelegado;
-
-    public Action miDelegadoAction;
-    public Action<string> callbackWMessage;
-
-    public Func<string> callbackSendMsg;
-    public Func<int, string> printsNumber;
-
     private Seek seek;
     private Flee flee;
     private Persuit persuit;
     private Evade evade;
     private Arrive arrive;
+    
     void Start()
     {
         CreateTree();
@@ -70,9 +64,9 @@ public class NPCTree : MonoBehaviour
     {
         _rootNode.Execute();
     }
-
-    private void HandleMessage(string message) { }
+    
     private void Die() { Debug.Log("Die"); }
+    
     private void Flee() 
     { 
         Debug.Log("Flee");
@@ -85,6 +79,7 @@ public class NPCTree : MonoBehaviour
     {
         Debug.Log("Attack");
     }
+    
     private void Patrol() 
     { 
         Debug.Log("Patrol");
@@ -94,6 +89,7 @@ public class NPCTree : MonoBehaviour
         velocity = arrive.GetSteerDir(velocity);
         transform.position += velocity * Time.deltaTime;
     }
+    
     private void Idle() 
     {
         currentWP++;
@@ -102,6 +98,7 @@ public class NPCTree : MonoBehaviour
         arrive.SetTarget = waypoints[currentWP].transform;
         Debug.Log("Idle"); 
     }
+    
     private void Persuit() 
     {
         Debug.Log("Persuit");
