@@ -1,11 +1,9 @@
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 
-[RequireComponent(typeof(Rigidbody),typeof(FOV))]
+[RequireComponent(typeof(Rigidbody))]
 public class EnemyPatrol : MonoBehaviour
 {
-
     [Header("Patrol Settings")]
     [SerializeField] private Transform[] waypoints;
     [SerializeField] private float movespeed = 3f;
@@ -13,28 +11,15 @@ public class EnemyPatrol : MonoBehaviour
     [SerializeField] private float waitTimeAtWaypoint = 2f;
 
 
-    [Header("HUIDA")]
-    [SerializeField] private float fleedistance = 5f;
-
     private int currentWP = 0;
     private Rigidbody rb;
-    private FOV fov;
-    private Transform Target;
     private bool waiting= false;
     private float waitTimer = 0f;
-   
-
 
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        fov = GetComponent<FOV>();
-
-        if (fov.Target != null)
-        {
-            Target = fov.Target.transform;
-        }
 
         if (waypoints == null || waypoints.Length == 0)
         {
@@ -46,42 +31,68 @@ public class EnemyPatrol : MonoBehaviour
     private void FixedUpdate()
     {
 
-        if(fov!= null&& fov.CheckDetection() && Target!=null)
+
+        if (waiting)
         {
-            FleeFromTarget();
+            WaitAtWayPoint();
         }
         else
         {
-            Patrol();
+            MoveTowardsWayPoint();
         }
        
     }
 
-    private void FleeFromTarget()
+
+
+    private void MoveTowardsWayPoint()
     {
-        if (Target == null) return;
+        Transform targetWP = waypoints[currentWP];
+        Vector3 dir = targetWP.position - transform.position;
+        Vector3 dirY = new Vector3(dir.x, 0f, dir.z);
 
-        // Dirección para huir
-        Vector3 fleeDir = rb.position - Target.position;
-        fleeDir.y = 0f;
-
-        // Movimiento hacia atrás
-        fleeDir.Normalize();
-        rb.MovePosition(rb.position + fleeDir * movespeed * Time.fixedDeltaTime);
-
-        // Rotación para mirar al jugador
-        Vector3 lookDir = Target.position - rb.position;
-        lookDir.y = 0f;
-        if (lookDir != Vector3.zero)
+        // Verificar si llegó al waypoint
+        if (dirY.magnitude < reachdistance)
         {
-            Quaternion lookRotation = Quaternion.LookRotation(lookDir);
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, lookRotation, 5f * Time.fixedDeltaTime));
+            waiting = true;
+            waitTimer = 0f;
+            rb.MovePosition(rb.position); // detenerse completamente
+            return;
+        }
+
+        // Movimiento
+        Vector3 move = dirY.normalized * movespeed * Time.fixedDeltaTime;
+        rb.MovePosition(rb.position + move);
+
+        // Rotación suave solo en eje Y
+        if (dirY != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(dirY.normalized);
+            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 5f));
         }
     }
+    private void WaitAtWayPoint()
+    {
 
+        waitTimer += Time.fixedDeltaTime;
 
+        Transform nextWP= waypoints[(currentWP+1)  % waypoints.Length];
+        Vector3 dirY = new Vector3(nextWP.position.x-transform.position.y,0f, nextWP.position.z-transform.position.z).normalized;
+        if(dirY != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(dirY);
+            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 5f));
+        }
 
- 
+        rb.MovePosition(rb.position);
+
+        if(waitTimer>= waitTimeAtWaypoint)
+        {
+            waiting = false;
+            currentWP=(currentWP+1)%waypoints.Length;
+        }
+
+    }
     private void Patrol()
     {
 
@@ -106,8 +117,7 @@ public class EnemyPatrol : MonoBehaviour
         Transform targetWP = waypoints[currentWP];
         Vector3 dir = targetWP.position - transform.position;
         Vector3 dirY = new Vector3(dir.x, 0f, dir.z);
-
-        // Verificar si llegó al waypoint
+        
         if (dirY.magnitude < reachdistance)
         {
             currentWP = (currentWP + 1) % waypoints.Length;
@@ -115,12 +125,10 @@ public class EnemyPatrol : MonoBehaviour
             dir = targetWP.position - transform.position;
             dirY = new Vector3(dir.x, 0f, dir.z);
         }
-
-        // Movimiento usando MovePosition
+        
         Vector3 move = dirY.normalized * movespeed * Time.fixedDeltaTime;
         rb.MovePosition(rb.position + move);
-
-        // Rotación suave en eje Y usando MoveRotation
+        
         if (dirY != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(dirY.normalized);
