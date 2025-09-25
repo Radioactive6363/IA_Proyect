@@ -10,9 +10,13 @@ public class EnemyPatrol : MonoBehaviour
     [SerializeField] private float reachdistance = 0.5f;
     [SerializeField] private float waitTimeAtWaypoint = 2f;
 
+    [Header("Huida")]
+    [SerializeField] private float fleedistance = 5f;
 
     private int currentWP = 0;
     private Rigidbody rb;
+    private FOV fov;
+    private Transform target;
     private bool waiting= false;
     private float waitTimer = 0f;
 
@@ -20,6 +24,11 @@ public class EnemyPatrol : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        fov= GetComponent<FOV>();
+        if(fov.Target!=null)
+        {
+            target = fov.Target.transform;
+        }
 
         if (waypoints == null || waypoints.Length == 0)
         {
@@ -32,16 +41,41 @@ public class EnemyPatrol : MonoBehaviour
     {
 
 
-        if (waiting)
-        {
-            WaitAtWayPoint();
+        if(fov != null&& fov.CheckDetection() && target!=null) {
+
+            FleeFromTarget();
+
         }
         else
         {
-            MoveTowardsWayPoint();
+            Patrol();
+
         }
        
     }
+
+    private void FleeFromTarget()
+    {
+        if (target == null) return;
+
+        //Direccion para huir
+        Vector3 fleeDir = rb.position - target.position;
+        fleeDir.y = 0f;
+        //Movieminto hacie atras
+        fleeDir.Normalize();
+        rb.MovePosition(rb.position + fleeDir * movespeed * Time.fixedDeltaTime);
+
+        //rotacion para mirar al jugador
+        Vector3 lookDir = target.position - rb.position;
+        lookDir.y = 0f;
+        if (lookDir != Vector3.zero)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(lookDir);
+            rb.MoveRotation(Quaternion.Slerp(rb.rotation, lookRotation, 5f * Time.fixedDeltaTime));
+        }
+    }
+
+
 
 
 
