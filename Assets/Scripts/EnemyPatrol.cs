@@ -4,16 +4,13 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class EnemyPatrol : MonoBehaviour
 {
-
     [Header("Patrol Settings")]
     [SerializeField] private Transform[] waypoints;
     [SerializeField] private float movespeed = 3f;
     [SerializeField] private float reachdistance = 0.5f;
 
-
     private int currentWP = 0;
     private Rigidbody rb;
-
 
     private void Start()
     {
@@ -39,8 +36,7 @@ public class EnemyPatrol : MonoBehaviour
         Transform targetWP = waypoints[currentWP];
         Vector3 dir = targetWP.position - transform.position;
         Vector3 dirY = new Vector3(dir.x, 0f, dir.z);
-
-        // Verificar si llegó al waypoint
+        
         if (dirY.magnitude < reachdistance)
         {
             currentWP = (currentWP + 1) % waypoints.Length;
@@ -48,12 +44,10 @@ public class EnemyPatrol : MonoBehaviour
             dir = targetWP.position - transform.position;
             dirY = new Vector3(dir.x, 0f, dir.z);
         }
-
-        // Movimiento usando MovePosition
+        
         Vector3 move = dirY.normalized * movespeed * Time.fixedDeltaTime;
         rb.MovePosition(rb.position + move);
-
-        // Rotación suave en eje Y usando MoveRotation
+        
         if (dirY != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(dirY.normalized);

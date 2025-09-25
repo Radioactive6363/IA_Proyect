@@ -1,38 +1,58 @@
+using System;
 using UnityEngine;
 
-public class NPCTree : BaseTree
+public class NPCTreeTest : MonoBehaviour
 {
-    [Header("Stats")]
     [SerializeField] int health;
     [SerializeField] int maxHealth;
-    [SerializeField] FOV fieldOfView;
-    [SerializeField] float attackRange;
-    [SerializeField] float maxSpeed;
-    [SerializeField] Vector3 velocity;
     [SerializeField, Range(0, 100)] int lowHealthThreshold;
-    
-    [Header("Steering")]
+
+    [SerializeField] FOV fieldOfView;
     [SerializeField] GameObject target;
+
     [SerializeField] Transform[] waypoints;
     [SerializeField] int currentWP;
+
+    [SerializeField] float attackRange;
     [SerializeField] float arriveRange;
-    
+
+    [SerializeField] float maxSpeed;
+    [SerializeField] Vector3 velocity;
+
+    [SerializeField] float avoidanceRange;
+    [SerializeField] float personalArea;
+    [SerializeField] LayerMask obstacleMask;
+
     private ITreeNode _rootNode;
+
+    public delegate void MiDelegado();
+    public MiDelegado _miDelegado;
+
+    public Action miDelegadoAction;
+    public Action<string> callbackWMessage;
+
+    public Func<string> callbackSendMsg;
+    public Func<int, string> printsNumber;
+
+    private Seek seek;
+    private Flee flee;
     private Persuit persuit;
     private Evade evade;
     private Arrive arrive;
-    
-    private void Start()
+    private ObstacleAvoidance avoidance;
+    void Start()
     {
         CreateTree();
+        seek = new Seek(waypoints[currentWP].transform, transform, maxSpeed);
+        flee = new Flee(target.transform, transform, maxSpeed);
         persuit = new Persuit(target.transform, transform, maxSpeed);
         evade = new Evade(target.transform, transform, maxSpeed);
         arrive = new Arrive(waypoints[currentWP].transform, transform, maxSpeed, arriveRange);
+        avoidance = new ObstacleAvoidance(transform, avoidanceRange, 40, personalArea, obstacleMask);
     }
 
-    protected override void CreateTree()
+    private void CreateTree()
     {
-        //Actions
         ActionNode die = new(Die);
         ActionNode patrol = new(Patrol);
         ActionNode idle = new(Idle);
@@ -41,45 +61,43 @@ public class NPCTree : BaseTree
         ActionNode attack = new(Attack);
 
 
-        QuestionNode inAttackRange = new(() => Vector3.Distance(transform.position, target.transform.position) < attackRange, attack, persuit);
-        QuestionNode arrivedAtPoint = new(() => Vector3.Distance(transform.position, waypoints[currentWP].position) < 0.3f, idle, patrol);
+        QuestionNode inAttackRange = new(() => 
+            Vector3.Distance(transform.position, target.transform.position) < attackRange, attack, persuit);
+        QuestionNode arrivedAtPoint = new(() =>
+            (transform.position - waypoints[currentWP].position).sqrMagnitude < 1f, idle, patrol);
         QuestionNode lowHealth = new(() => health < maxHealth * lowHealthThreshold / 100, flee, inAttackRange);
         QuestionNode isPInSight = new(fieldOfView.CheckDetection, lowHealth, arrivedAtPoint);
         QuestionNode isAlive = new(() => health <= 0, die, isPInSight);
 
         _rootNode = isAlive;
     }
+
     
-    private void Update()
+    private bool IsAlive()
+    {
+        return health <= 0;
+    }
+    // Update is called once per frame
+    void Update()
     {
         _rootNode.Execute();
     }
 
-    private void Die()
-    {
-        Debug.Log("Die"); 
-        
-    }
-    
+    private void HandleMessage(string message) { }
+    private void Die() { Debug.Log("Die"); }
     private void Flee() 
     { 
         Debug.Log("Flee");
         velocity = evade.GetSteerDir(velocity);
-        transform.position += velocity * Time.deltaTime;
+        Move();
     }
-
-    private void Attack()
-    {
-        Debug.Log("Attack");
-    }
-    
+    private void Attack() { Debug.Log("Attack"); }
     private void Patrol() 
     { 
         Debug.Log("Patrol");
         velocity = arrive.GetSteerDir(velocity);
-        transform.position += velocity * Time.deltaTime;
+        Move();
     }
-    
     private void Idle() 
     {
         currentWP++;
@@ -88,18 +106,30 @@ public class NPCTree : BaseTree
         arrive.SetTarget = waypoints[currentWP].transform;
         Debug.Log("Idle"); 
     }
-    
     private void Persuit() 
     {
         Debug.Log("Persuit");
         velocity = persuit.GetSteerDir(velocity);
+        Move();
+    }
+
+    private void Move()
+    {
+        velocity = avoidance.GetDir2(velocity);
         transform.position += velocity * Time.deltaTime;
     }
+
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-
         Gizmos.DrawWireSphere(transform.position, attackRange);
+
+
+        /*Gizmos.color = Color.yellowNice;
+        Gizmos.DrawWireSphere(transform.position, avoidanceRange);
+
+        Gizmos.color = Color.mediumVioletRed;
+        Gizmos.DrawWireSphere(transform.position, personalArea);*/
     }
 }
