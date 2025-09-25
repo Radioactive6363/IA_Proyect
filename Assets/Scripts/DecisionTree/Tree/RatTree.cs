@@ -15,7 +15,6 @@ public class RatTree : BaseTree
 
     [Header("Steering")] 
     [SerializeField] Transform[] waypoints;
-    [SerializeField] int currentWP = 0;
     [SerializeField] float arriveRange = 1f;
     [SerializeField] int autoWaypointCount = 5;
     [SerializeField] float autoWaypointRadius = 10f;
@@ -29,8 +28,9 @@ public class RatTree : BaseTree
     [Header("Extras")]
     [SerializeField] private AudioClip[] squeakSounds;
     
+    private int currentWP = 0;
     private AudioSource audioSource;
-    private Dictionary<AudioClip, float> _audioValues = new Dictionary<AudioClip, float>();
+    private Dictionary<AudioClip, float> _audioValues;
     private Rigidbody rb;
     private GameObject player;
     
@@ -48,6 +48,7 @@ public class RatTree : BaseTree
     {
         player = GameObject.FindGameObjectWithTag("Player");
         audioSource = GetComponent<AudioSource>();
+        _audioValues = new Dictionary<AudioClip, float>();
         rb = GetComponent<Rigidbody>();
         GenerateAudio();
         if (player == null)
@@ -166,9 +167,12 @@ public class RatTree : BaseTree
 
     private void GenerateAudio()
     {
-        _audioValues[squeakSounds[0]] = 0.5f;
-        _audioValues[squeakSounds[1]] = 0.3f;
-        _audioValues[squeakSounds[2]] = 0.2f;
+        if (squeakSounds.Length > 0)
+        {
+            _audioValues[squeakSounds[0]] = 0.5f;
+            _audioValues[squeakSounds[1]] = 0.3f;
+            _audioValues[squeakSounds[2]] = 0.2f;
+        }
     }
     
     private void PlayRandomSqueak()

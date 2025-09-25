@@ -162,7 +162,6 @@ MonoBehaviour:
   awarnessDistance: 20
   scaredDuration: 3
   waypoints: []
-  currentWP: 0
   arriveRange: 1
   autoWaypointCount: 5
   autoWaypointRadius: 10
@@ -172,7 +171,10 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 8
-  squeakSounds: []
+  squeakSounds:
+  - {fileID: 8300000, guid: e2954c026174ba24bbcd35414f1fd3e6, type: 3}
+  - {fileID: 8300000, guid: 9f8f173a468eed6438ff6a299064d5b7, type: 3}
+  - {fileID: 8300000, guid: a89a1bb57940d554eb3d04de0081eab5, type: 3}
 --- !u!54 &8159616210475671854
 Rigidbody:
   m_ObjectHideFlags: 0
