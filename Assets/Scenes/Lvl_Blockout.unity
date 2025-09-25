@@ -147,6 +147,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 26.012608
@@ -377,6 +381,10 @@ PrefabInstance:
     - target: {fileID: 5032347819439963554, guid: cc1a12017ac2d1a4a9f4e22da4cc67e9, type: 3}
       propertyPath: m_Name
       value: Doorway
+      objectReference: {fileID: 0}
+    - target: {fileID: 5032347819439963554, guid: cc1a12017ac2d1a4a9f4e22da4cc67e9, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5660394988824544960, guid: cc1a12017ac2d1a4a9f4e22da4cc67e9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -861,6 +869,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pillar (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 6696309431074710419, guid: 9ca6ae0ff30ab1b4787f2e2b79d31e3a, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 7466562270908076268, guid: 9ca6ae0ff30ab1b4787f2e2b79d31e3a, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -1095,7 +1107,7 @@ GameObject:
   - component: {fileID: 247976584}
   - component: {fileID: 247976583}
   - component: {fileID: 247976582}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PolyShape (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1730,6 +1742,10 @@ PrefabInstance:
     - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_Name
       value: wall (11)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2708,7 +2724,7 @@ GameObject:
   - component: {fileID: 365826758}
   - component: {fileID: 365826757}
   - component: {fileID: 365826756}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PolyShape
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3477,6 +3493,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (19)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.0126095
@@ -3813,6 +3833,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 39.012608
@@ -4056,6 +4080,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 25.962624
@@ -4120,7 +4148,7 @@ GameObject:
   - component: {fileID: 516999388}
   - component: {fileID: 516999387}
   - component: {fileID: 516999386}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PolyShape (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4764,6 +4792,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 46.012608
@@ -5337,6 +5369,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (22)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.9626236
@@ -5401,7 +5437,7 @@ GameObject:
   - component: {fileID: 607184538}
   - component: {fileID: 607184537}
   - component: {fileID: 607184536}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PolyShape (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6134,6 +6170,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 48.962624
@@ -6212,6 +6252,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (21)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: -9.087391
@@ -6276,7 +6320,7 @@ GameObject:
   - component: {fileID: 647514922}
   - component: {fileID: 647514921}
   - component: {fileID: 647514920}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PolyShape (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7665,7 +7709,7 @@ GameObject:
   - component: {fileID: 757504692}
   - component: {fileID: 757504691}
   - component: {fileID: 757504690}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PolyShape (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8510,6 +8554,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (15)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 45.962624
@@ -9340,6 +9388,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 32.962624
@@ -9912,6 +9964,10 @@ PrefabInstance:
     - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_Name
       value: wall (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -10725,6 +10781,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Door (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 5032347819439963554, guid: cc1a12017ac2d1a4a9f4e22da4cc67e9, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 5660394988824544960, guid: cc1a12017ac2d1a4a9f4e22da4cc67e9, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6.689142
@@ -11425,7 +11485,7 @@ GameObject:
   - component: {fileID: 1145085713}
   - component: {fileID: 1145085712}
   - component: {fileID: 1145085711}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PolyShape (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11904,6 +11964,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 26.012608
@@ -12312,6 +12376,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 46.012608
@@ -12390,6 +12458,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (18)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.0126095
@@ -12454,7 +12526,7 @@ GameObject:
   - component: {fileID: 1195756322}
   - component: {fileID: 1195756321}
   - component: {fileID: 1195756320}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PolyShape (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13336,7 +13408,7 @@ GameObject:
   - component: {fileID: 1233337668}
   - component: {fileID: 1233337667}
   - component: {fileID: 1233337666}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PolyShape
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14296,7 +14368,7 @@ GameObject:
   - component: {fileID: 1367082622}
   - component: {fileID: 1367082621}
   - component: {fileID: 1367082620}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PolyShape (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14962,7 +15034,7 @@ GameObject:
   - component: {fileID: 1397531793}
   - component: {fileID: 1397531792}
   - component: {fileID: 1397531791}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PolyShape (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15399,6 +15471,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pillar (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 6696309431074710419, guid: 9ca6ae0ff30ab1b4787f2e2b79d31e3a, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 7466562270908076268, guid: 9ca6ae0ff30ab1b4787f2e2b79d31e3a, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -15605,6 +15681,10 @@ PrefabInstance:
     - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_Name
       value: wall (20)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -15835,7 +15915,7 @@ GameObject:
   - component: {fileID: 1473903233}
   - component: {fileID: 1473903232}
   - component: {fileID: 1473903231}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Arch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17767,6 +17847,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (13)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 5.9626236
@@ -17844,6 +17928,10 @@ PrefabInstance:
     - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_Name
       value: wall (17)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -18165,6 +18253,10 @@ PrefabInstance:
     - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_Name
       value: wall (9)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -19046,7 +19138,7 @@ GameObject:
   - component: {fileID: 1779781774}
   - component: {fileID: 1779781773}
   - component: {fileID: 1779781772}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PolyShape (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19763,7 +19855,7 @@ GameObject:
   - component: {fileID: 1818502821}
   - component: {fileID: 1818502820}
   - component: {fileID: 1818502819}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PolyShape (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20164,6 +20256,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (8)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 15.962624
@@ -20277,6 +20373,10 @@ PrefabInstance:
     - target: {fileID: 6696309431074710419, guid: 9ca6ae0ff30ab1b4787f2e2b79d31e3a, type: 3}
       propertyPath: m_Name
       value: Pillar (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6696309431074710419, guid: 9ca6ae0ff30ab1b4787f2e2b79d31e3a, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7466562270908076268, guid: 9ca6ae0ff30ab1b4787f2e2b79d31e3a, type: 3}
       propertyPath: m_Mesh
@@ -20650,6 +20750,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (14)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.9626236
@@ -20879,7 +20983,7 @@ GameObject:
   - component: {fileID: 2036346511}
   - component: {fileID: 2036346510}
   - component: {fileID: 2036346509}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PolyShape (10)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21610,6 +21714,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (12)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 15.962624
@@ -22183,6 +22291,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall (16)
       objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 35.962624
@@ -22247,7 +22359,7 @@ GameObject:
   - component: {fileID: 2142793226}
   - component: {fileID: 2142793225}
   - component: {fileID: 2142793224}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: doorFront
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -22594,6 +22706,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pillar
       objectReference: {fileID: 0}
+    - target: {fileID: 6696309431074710419, guid: 9ca6ae0ff30ab1b4787f2e2b79d31e3a, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 7466562270908076268, guid: 9ca6ae0ff30ab1b4787f2e2b79d31e3a, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -22701,6 +22817,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pipe
       objectReference: {fileID: 0}
+    - target: {fileID: 2298823219935390455, guid: ac28a9c70162a8a449dedbb85c491090, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2843175712282114782, guid: ac28a9c70162a8a449dedbb85c491090, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -22782,6 +22902,10 @@ PrefabInstance:
     - target: {fileID: 5032347819439963554, guid: cc1a12017ac2d1a4a9f4e22da4cc67e9, type: 3}
       propertyPath: m_Name
       value: Door
+      objectReference: {fileID: 0}
+    - target: {fileID: 5032347819439963554, guid: cc1a12017ac2d1a4a9f4e22da4cc67e9, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5660394988824544960, guid: cc1a12017ac2d1a4a9f4e22da4cc67e9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -23536,6 +23660,10 @@ PrefabInstance:
     - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_Name
       value: wall
+      objectReference: {fileID: 0}
+    - target: {fileID: 8354474831640284411, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 9068871642301371607, guid: e9f4e988128965642ae0681e76345ef5, type: 3}
       propertyPath: m_LocalPosition.x
