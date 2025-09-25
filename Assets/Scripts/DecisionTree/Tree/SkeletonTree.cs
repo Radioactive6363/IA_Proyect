@@ -1,20 +1,21 @@
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(AudioSource))]
-public class RatTree : BaseTree
+[RequireComponent(typeof(FOV))]
+public class SkeletonTree : BaseTree
 {
     [Header("Stats")] 
-    [SerializeField] private float minIdleTime = 1f;
-    [SerializeField] private float maxIdleTime = 4f;
-    [SerializeField] private float maxSpeed = 3f;
-    [SerializeField] private float fleeSpeed = 6f;
-    [SerializeField] float awarnessDistance = 20f;
-    [SerializeField] float scaredDuration = 2f;
-
+    [SerializeField] private float minIdleTime = 5f;
+    [SerializeField] private float maxIdleTime = 10f;
+    [SerializeField] private float maxSpeed = 3f; 
+    [SerializeField] private float persuitSpeed = 6f; 
+    [SerializeField] float awarenessDistance = 0.5f;
+    [SerializeField] float attackDistance = 10f;
+    
     [Header("Steering")] 
     [SerializeField] Transform[] waypoints;
+    [SerializeField] int currentWP = 0;
     [SerializeField] float arriveRange = 1f;
     [SerializeField] int autoWaypointCount = 5;
     [SerializeField] float autoWaypointRadius = 10f;
@@ -24,89 +25,98 @@ public class RatTree : BaseTree
     [SerializeField] float avoidanceAngle;
     [SerializeField] float personalArea;
     [SerializeField] LayerMask obstacleMask;
+
+    [Header("Behaviour")] 
+    [SerializeField] private bool isAlive = true;
+    [SerializeField] private bool canAttack;
+    [SerializeField] private float attackCooldown = 2f;
     
-    [Header("Extras")]
-    [SerializeField] private AudioClip[] squeakSounds;
-    
-    private int currentWP = 0;
-    private AudioSource audioSource;
-    private Dictionary<AudioClip, float> _audioValues;
     private Rigidbody rb;
     private GameObject player;
-    
-    private Flee flee;
+    private FOV fieldOfView;
+        
+    private Persuit persuit;
     private Arrive arrive;
     private ObstacleAvoidance avoidance;
-
+    
     private Vector3 velocity;
     private float idleTimerHandler;
-    private bool isScared;
-    private float scaredTimer;
     private bool isWaiting = false;
 
     protected override void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        audioSource = GetComponent<AudioSource>();
-        _audioValues = new Dictionary<AudioClip, float>();
-        rb = GetComponent<Rigidbody>();
-        GenerateAudio();
         if (player == null)
         {
             Debug.LogError("Player not Found.");
             return;
         }
-
+        rb = GetComponent<Rigidbody>();
+        fieldOfView = GetComponent<FOV>();
+        fieldOfView.Target = player;
+        
         if (waypoints == null || waypoints.Length == 0)
         {
             CreateWaypoints();
             UpdateWaypoints();
         }
-
-        flee = new Flee(player.transform, transform, fleeSpeed);
-        arrive = new Arrive(waypoints[currentWP], transform, maxSpeed, arriveRange);
-        avoidance = new ObstacleAvoidance(transform, avoidanceRange, avoidanceAngle, personalArea, obstacleMask);
+        
+        persuit = new(player.transform, transform, persuitSpeed);
+        arrive = new (waypoints[currentWP], transform, maxSpeed, arriveRange);
+        avoidance = new (transform, avoidanceRange, avoidanceAngle, personalArea, obstacleMask);
 
         base.Start();
     }
     protected override void Update()
     {
         Debug.Log(
-            $"{name} tick, currentWaypoint= {waypoints[currentWP]} isScared={isScared} idleTimer={idleTimerHandler} distToPlayer={(player ? Vector3.Distance(transform.position, player.transform.position) : -1)}");
+            $"{name} tick, currentWaypoint= {waypoints[currentWP]} isScared={isAlive} idleTimer={idleTimerHandler} distToPlayer={(player ? Vector3.Distance(transform.position, player.transform.position) : -1)}");
         base.Update();
     }
 
     protected override void CreateTree()
     {
-        ActionNode wander = new(Wandering);
+        ActionNode patrol = new(Wandering);
         ActionNode idle = new(Idle);
-        ActionNode scared = new(Scared);
-        ActionNode runAway = new(RunAway);
+        ActionNode attack = new(Attack);
+        ActionNode death = new(Death);
+        ActionNode persecute = new(Persecute);
         
         QuestionNode arrivedAtPoint = new(
             () => Vector3.Distance(transform.position, waypoints[currentWP].position) < 0.3f,
-            idle, wander
+            idle, patrol
         );
         
-        QuestionNode isPlayerClose = new(
-            () => Vector3.Distance(transform.position, player.transform.position) < awarnessDistance,
-            scared, arrivedAtPoint
+        QuestionNode isAtAttackDistance = new(
+            () => Vector3.Distance(transform.position, player.transform.position) < attackDistance,
+            attack, persecute
+        );
+        
+        QuestionNode isPlayerCloseOrInSight = new(
+            () =>
+                Vector3.Distance(transform.position, player.transform.position) < awarenessDistance
+                || fieldOfView.CheckDetection(),
+            isAtAttackDistance, arrivedAtPoint
         );
         
         _rootNode = new QuestionNode(
-            () => isScared,
-            runAway, isPlayerClose
+            () => isAlive,
+            isPlayerCloseOrInSight, death
         );
     }
 
     private void Wandering()
     {
-        Debug.Log("Rat Wandering");
+        Debug.Log($"{this} Wandering");
         velocity = arrive.GetSteerDir(velocity);
         velocity.y = rb.linearVelocity.y;
         Movement();
     }
 
+    private void Death()
+    {
+        Destroy(gameObject);
+    }
     private void Idle()
     {
         if (idleTimerHandler <= 0)
@@ -133,30 +143,25 @@ public class RatTree : BaseTree
         }
     }
 
-    private void Scared()
+    private void Attack()
     {
-        if (!isScared)
-        {
-            Debug.Log($"{this} Scared");
-            scaredTimer = scaredDuration;
-            idleTimerHandler = 0;
-            PlayRandomSqueak();
-            isScared = true;
-        }
+        if (!canAttack) return;
+        Debug.Log($"{this} attacks the player!");
+        StartCoroutine(AttackCooldown());
+    }
+    
+    private IEnumerator AttackCooldown()
+    {
+        canAttack = false;
+        yield return new WaitForSeconds(attackCooldown);
+        canAttack = true;
     }
 
-    private void RunAway()
+    private void Persecute()
     {
-        if (scaredTimer <= 0)
-        {
-            UpdateWaypoints();
-            isScared = false;
-            return;
-        }
-        velocity = flee.GetSteerDir(velocity);
+        velocity = persuit.GetSteerDir(velocity);
         velocity.y = rb.linearVelocity.y;
         Movement();
-        scaredTimer -= Time.deltaTime;
     }
 
     private void Movement()
@@ -164,34 +169,13 @@ public class RatTree : BaseTree
         velocity = avoidance.GetDir2(velocity);
         rb.linearVelocity = velocity;
     }
-
-    private void GenerateAudio()
-    {
-        if (squeakSounds.Length > 0)
-        {
-            _audioValues[squeakSounds[0]] = 0.5f;
-            _audioValues[squeakSounds[1]] = 0.3f;
-            _audioValues[squeakSounds[2]] = 0.2f;
-        }
-    }
-    
-    private void PlayRandomSqueak()
-    {
-        AudioClip chosenClip = RandomGenerator.Roulette(_audioValues);
-
-        if (chosenClip != null)
-        {
-            audioSource.PlayOneShot(chosenClip);
-            Debug.Log($"{this} squeaked: {chosenClip.name}");
-        }
-    }
     
     private void CreateWaypoints()
     {
         waypoints = new Transform[autoWaypointCount];
         for (int i = 0; i < autoWaypointCount; i++)
         {
-            GameObject wp = new GameObject($"{this}RatWaypoint_{i}");
+            GameObject wp = new GameObject($"{this} Waypoint_{i}");
             waypoints[i] = wp.transform;
         }
     }

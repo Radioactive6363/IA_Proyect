@@ -2,24 +2,21 @@ using UnityEngine;
 
 public class FOV : MonoBehaviour
 {
-    [Header("Detección")]
-    [SerializeField] private GameObject _detectionImage;
+    [Header("Detection")]
     [SerializeField] private GameObject _target;
     [SerializeField] private float _angle = 90f;
     [SerializeField] private float _distance = 5f;
     [SerializeField] private LayerMask _obstacleMask;
 
-    public GameObject Target => _target;
+    public GameObject Target
+    {
+        get => _target;
+        set => _target = value;
+    }
 
     private Vector3 Origin => transform.position;
     private Vector3 Forward => transform.forward;
-
-    void Update()
-    {
-        if (_detectionImage != null)
-            _detectionImage.SetActive(CheckDetection());
-    }
-
+    
     public bool CheckDetection()
     {
         if (_target == null) return false;
@@ -45,7 +42,8 @@ public class FOV : MonoBehaviour
         return !Physics.Linecast(Origin, target, _obstacleMask);
     }
 
-    private void OnDrawGizmos()
+    /*
+     private void OnDrawGizmos()
     {
         Gizmos.color = new Color(0, 0, 1, 0.3f);
         Gizmos.DrawWireSphere(Origin, _distance);
@@ -60,4 +58,5 @@ public class FOV : MonoBehaviour
             Gizmos.DrawLine(Origin, _target.transform.position);
         }
     }
+    */
 }
