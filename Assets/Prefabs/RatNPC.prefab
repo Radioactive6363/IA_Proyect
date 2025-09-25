@@ -159,7 +159,7 @@ MonoBehaviour:
   maxIdleTime: 4
   maxSpeed: 1
   fleeSpeed: 5
-  awarnessDistance: 20
+  awarnessDistance: 5
   scaredDuration: 3
   waypoints: []
   arriveRange: 1
