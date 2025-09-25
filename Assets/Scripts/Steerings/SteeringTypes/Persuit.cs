@@ -38,12 +38,10 @@ public class Persuit : ISteering
 
         var desiredVelocity = dirToPoint.normalized * maxSpeed; // velocidad deseada = direcci�n normalizada * velocidad m�xima
         Vector3 steering = desiredVelocity - currentVelocity; // correcci�n de velocidad = velocidad deseada - actual
-
-
+        
         Debug.DrawRay(npcTransform.position, dirToPoint, Color.green);
         Debug.DrawRay(npcTransform.position, dirToTarget, Color.yellow);
         return currentVelocity += steering * Time.deltaTime; // a la velocidad actual se le suma la correcci�n (aceleraci�n) * tiempo (Time.deltaTime)
-
 
     }
 }

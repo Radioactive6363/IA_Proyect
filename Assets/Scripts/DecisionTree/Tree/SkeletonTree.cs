@@ -9,9 +9,9 @@ public class SkeletonTree : BaseTree
     [SerializeField] private float minIdleTime = 5f;
     [SerializeField] private float maxIdleTime = 10f;
     [SerializeField] private float maxSpeed = 3f; 
-    [SerializeField] private float persuitSpeed = 6f; 
-    [SerializeField] float awarenessDistance = 0.5f;
-    [SerializeField] float attackDistance = 10f;
+    [SerializeField] private float persuitSpeed = 10f; 
+    [SerializeField] float awarenessDistance = 15f;
+    [SerializeField] float attackDistance = 2f;
     
     [Header("Steering")] 
     [SerializeField] Transform[] waypoints;
@@ -70,13 +70,13 @@ public class SkeletonTree : BaseTree
     protected override void Update()
     {
         Debug.Log(
-            $"{name} tick, currentWaypoint= {waypoints[currentWP]} isScared={isAlive} idleTimer={idleTimerHandler} distToPlayer={(player ? Vector3.Distance(transform.position, player.transform.position) : -1)}");
+            $"{name} tick, currentWaypoint= {waypoints[currentWP]} isAlive={isAlive} idleTimer={idleTimerHandler} distToPlayer={(player ? Vector3.Distance(transform.position, player.transform.position) : -1)}");
         base.Update();
     }
 
     protected override void CreateTree()
     {
-        ActionNode patrol = new(Wandering);
+        ActionNode patrol = new(Patrol);
         ActionNode idle = new(Idle);
         ActionNode attack = new(Attack);
         ActionNode death = new(Death);
@@ -93,9 +93,7 @@ public class SkeletonTree : BaseTree
         );
         
         QuestionNode isPlayerCloseOrInSight = new(
-            () =>
-                Vector3.Distance(transform.position, player.transform.position) < awarenessDistance
-                || fieldOfView.CheckDetection(),
+            () => Vector3.Distance(transform.position, player.transform.position) < awarenessDistance || fieldOfView.CheckDetection(),
             isAtAttackDistance, arrivedAtPoint
         );
         
@@ -105,9 +103,9 @@ public class SkeletonTree : BaseTree
         );
     }
 
-    private void Wandering()
+    private void Patrol()
     {
-        Debug.Log($"{this} Wandering");
+        Debug.Log($"{this} Patroling");
         velocity = arrive.GetSteerDir(velocity);
         velocity.y = rb.linearVelocity.y;
         Movement();
@@ -159,6 +157,7 @@ public class SkeletonTree : BaseTree
 
     private void Persecute()
     {
+        Debug.Log($"{this} Persecute");
         velocity = persuit.GetSteerDir(velocity);
         velocity.y = rb.linearVelocity.y;
         Movement();

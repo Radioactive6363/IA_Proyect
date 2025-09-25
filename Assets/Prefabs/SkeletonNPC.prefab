@@ -170,7 +170,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &7893221521051402417
 MonoBehaviour:
@@ -189,7 +189,7 @@ MonoBehaviour:
   _distance: 5
   _obstacleMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
 --- !u!114 &1103506799105940101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -206,16 +206,16 @@ MonoBehaviour:
   maxIdleTime: 10
   maxSpeed: 3
   persuitSpeed: 6
-  awarenessDistance: 0.5
-  attackDistance: 10
+  awarenessDistance: 10
+  attackDistance: 2
   waypoints: []
   currentWP: 0
   arriveRange: 1
   autoWaypointCount: 5
   autoWaypointRadius: 10
-  avoidanceRange: 5
-  avoidanceAngle: 5
-  personalArea: 1
+  avoidanceRange: 1
+  avoidanceAngle: 1
+  personalArea: 0.2
   obstacleMask:
     serializedVersion: 2
     m_Bits: 8
