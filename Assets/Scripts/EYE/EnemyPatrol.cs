@@ -1,173 +1,205 @@
 using UnityEngine;
 
-
 [RequireComponent(typeof(Rigidbody))]
-public class EnemyPatrol : MonoBehaviour
+public class EnemyPatrol : BaseTree
 {
-    [Header("Patrol Settings")]
+    [Header("Stats")]
+    [SerializeField] private float minIdleTime = 1f;
+    [SerializeField] private float maxIdleTime = 4f;
+    [SerializeField] private float maxSpeed = 3f;
+    [SerializeField] private float fleeSpeed = 6f;
+    [SerializeField] private float awarnessDistance = 20f;
+    [SerializeField] private float scaredDuration = 2f;
+    [SerializeField] private float rotationspeed = 5f;
+
+    [Header("Steering")]
     [SerializeField] private Transform[] waypoints;
-    [SerializeField] private float movespeed = 3f;
-    [SerializeField] private float reachdistance = 0.5f;
-    [SerializeField] private float waitTimeAtWaypoint = 2f;
+    [SerializeField] private int currentWP = 0;
+    [SerializeField] private float arriveRange = 1f;
+    [SerializeField] private int autoWaypointCount = 5;
+    [SerializeField] private float autoWaypointRadius = 10f;
 
-    [Header("Huida")]
-    [SerializeField] private float fleedistance = 5f;
+    [Header("Avoidance")]
+    [SerializeField] private float avoidanceRange;
+    [SerializeField] private float avoidanceAngle;
+    [SerializeField] private float personalArea;
+    [SerializeField] private LayerMask obstacleMask;
 
-    private int currentWP = 0;
+    [Header("Extras")]
+    [SerializeField] private AudioClip[] squeakSounds;
+
+    private AudioSource audioSource;
     private Rigidbody rb;
-    private FOV fov;
-    private Transform target;
-    private bool waiting= false;
-    private float waitTimer = 0f;
+    private GameObject player;
 
+    private Flee flee;
+    private Arrive arrive;
+    private ObstacleAvoidance avoidance;
 
-    private void Start()
+    private Vector3 velocity;
+    private float idleTimerHandler;
+    private bool isScared;
+    private float scaredTimer;
+
+    protected override void Start()
     {
+        player = GameObject.FindGameObjectWithTag("Player");
+        audioSource = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody>();
-        fov= GetComponent<FOV>();
-        if(fov.Target!=null)
+
+        if (player == null)
         {
-            target = fov.Target.transform;
+            Debug.LogError("Player not Found.");
+            return;
         }
 
         if (waypoints == null || waypoints.Length == 0)
         {
-            Debug.LogError("no hay puntos asigandos");
-
+            CreateWaypoints();
+            UpdateWaypoints();
         }
+
+        flee = new Flee(player.transform, transform, fleeSpeed);
+        arrive = new Arrive(waypoints[currentWP], transform, maxSpeed, arriveRange);
+        avoidance = new ObstacleAvoidance(transform, avoidanceRange, avoidanceAngle, personalArea, obstacleMask);
+
+        base.Start();
     }
 
-    private void FixedUpdate()
+    protected override void Update()
     {
-
-
-        if(fov != null&& fov.CheckDetection() && target!=null) {
-
-            FleeFromTarget();
-
-        }
-        else
+        if (isScared)
         {
-            Patrol();
+            scaredTimer -= Time.deltaTime;
+            velocity = flee.GetSteerDir(velocity);
+            Movement();
 
-        }
-       
-    }
-
-    private void FleeFromTarget()
-    {
-        if (target == null) return;
-
-        //Direccion para huir
-        Vector3 fleeDir = rb.position - target.position;
-        fleeDir.y = 0f;
-        //Movieminto hacie atras
-        fleeDir.Normalize();
-        rb.MovePosition(rb.position + fleeDir * movespeed * Time.fixedDeltaTime);
-
-        //rotacion para mirar al jugador
-        Vector3 lookDir = target.position - rb.position;
-        lookDir.y = 0f;
-        if (lookDir != Vector3.zero)
-        {
-            Quaternion lookRotation = Quaternion.LookRotation(lookDir);
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, lookRotation, 5f * Time.fixedDeltaTime));
-        }
-    }
-
-
-
-
-
-    private void MoveTowardsWayPoint()
-    {
-        Transform targetWP = waypoints[currentWP];
-        Vector3 dir = targetWP.position - transform.position;
-        Vector3 dirY = new Vector3(dir.x, 0f, dir.z);
-
-        // Verificar si llegó al waypoint
-        if (dirY.magnitude < reachdistance)
-        {
-            waiting = true;
-            waitTimer = 0f;
-            rb.MovePosition(rb.position); // detenerse completamente
-            return;
-        }
-
-        // Movimiento
-        Vector3 move = dirY.normalized * movespeed * Time.fixedDeltaTime;
-        rb.MovePosition(rb.position + move);
-
-        // Rotación suave solo en eje Y
-        if (dirY != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(dirY.normalized);
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 5f));
-        }
-    }
-    private void WaitAtWayPoint()
-    {
-
-        waitTimer += Time.fixedDeltaTime;
-
-        Transform nextWP= waypoints[(currentWP+1)  % waypoints.Length];
-        Vector3 dirY = new Vector3(nextWP.position.x-transform.position.y,0f, nextWP.position.z-transform.position.z).normalized;
-        if(dirY != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(dirY);
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 5f));
-        }
-
-        rb.MovePosition(rb.position);
-
-        if(waitTimer>= waitTimeAtWaypoint)
-        {
-            waiting = false;
-            currentWP=(currentWP+1)%waypoints.Length;
-        }
-
-    }
-    private void Patrol()
-    {
-
-        if (waiting)
-        {
-            waitTimer += Time.fixedDeltaTime;
-            if(waitTimer >= waitTimeAtWaypoint)
+            if (scaredTimer <= 0)
             {
-                waiting = false;
-                waitTimer = 0f;
-                currentWP=(currentWP + 1) % waypoints.Length;
+                isScared = false;
+            }
+        }
+
+        base.Update();
+    }
+
+    protected override void CreateTree()
+    {
+        ActionNode scared = new(Scared);
+        ActionNode idle = new(Idle);
+        ActionNode patrol = new(Patrol);
+
+        QuestionNode arrivedAtPoint = new(
+            () => Vector3.Distance(transform.position, waypoints[currentWP].position) < arriveRange,
+            idle, patrol);
+
+        QuestionNode isPlayerClose = new(
+            () => Vector3.Distance(transform.position, player.transform.position) < awarnessDistance,
+            scared, arrivedAtPoint);
+
+        _rootNode = isPlayerClose;
+    }
+
+    private void Scared()
+    {
+        if (!isScared)
+        {
+            Debug.Log($"{name} is Scared!");
+            scaredTimer = scaredDuration;
+            idleTimerHandler = 0;
+            isScared = true;
+        }
+    }
+
+    private void Idle()
+    {
+        if (idleTimerHandler <= 0)
+        {
+            float chance = RandomGenerator.Range(0f, 1f);
+
+            if (chance < 0.5f)
+            {
+                Debug.Log($"{name} staying idle");
+                float randomTime = RandomGenerator.Range(minIdleTime, maxIdleTime);
+                idleTimerHandler = randomTime;
+            }
+            else
+            {
+                Debug.Log($"{name} moving to next waypoint");
+                NextWaypoint();
+                idleTimerHandler = 0;
             }
         }
         else
         {
-            Transform nextWp = waypoints[(currentWP + 1) % waypoints.Length];
-            Vector3 nextDir = new Vector3((nextWp.position - transform.position).x, 0f, (nextWp.position - transform.position).z).normalized;
+            idleTimerHandler -= Time.deltaTime;
         }
+    }
 
-        if (waypoints.Length == 0) return;
+    private void Movement()
+    {
+        velocity = avoidance.GetDir2(velocity);
 
-        Transform targetWP = waypoints[currentWP];
-        Vector3 dir = targetWP.position - transform.position;
-        Vector3 dirY = new Vector3(dir.x, 0f, dir.z);
-        
-        if (dirY.magnitude < reachdistance)
+
+        velocity.y = rb.linearVelocity.y;
+
+        rb.linearVelocity = velocity;
+        Vector3 move = velocity.normalized * maxSpeed;
+
+        Vector3 flatVel = new Vector3(velocity.x, 0, velocity.z);
+        RotateTowards(flatVel);
+    }
+
+    private void Patrol()
+    {
+        velocity = arrive.GetSteerDir(velocity);
+        Movement();
+
+
+        if (Vector3.Distance(transform.position, waypoints[currentWP].position) < arriveRange)
         {
-            currentWP = (currentWP + 1) % waypoints.Length;
-            targetWP = waypoints[currentWP];
-            dir = targetWP.position - transform.position;
-            dirY = new Vector3(dir.x, 0f, dir.z);
+            NextWaypoint();
         }
-        
-        Vector3 move = dirY.normalized * movespeed * Time.fixedDeltaTime;
-        rb.MovePosition(rb.position + move);
-        
-        if (dirY != Vector3.zero)
+    }
+
+    private void NextWaypoint()
+    {
+        currentWP = (currentWP + 1) % waypoints.Length;
+        arrive.SetTarget = waypoints[currentWP];
+    }
+
+    private void CreateWaypoints()
+    {
+        waypoints = new Transform[autoWaypointCount];
+        for (int i = 0; i < autoWaypointCount; i++)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(dirY.normalized);
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 5f));
+            GameObject wp = new GameObject($"EnemyWaypoint_{i}");
+            waypoints[i] = wp.transform;
+        }
+    }
+
+    private void UpdateWaypoints()
+    {
+        currentWP = 0;
+        for (int i = 0; i < waypoints.Length; i++)
+        {
+            Vector3 randomPos = transform.position + Random.insideUnitSphere * autoWaypointRadius;
+            randomPos.y = transform.position.y;
+            waypoints[i].position = randomPos;
         }
 
+        arrive.SetTarget = waypoints[currentWP];
+    }
+    private void RotateTowards(Vector3 dir)
+    {
+        if (dir.sqrMagnitude > 0.001f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(new Vector3(dir.x, 0, dir.z));
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotationspeed * Time.deltaTime
+            );
+        }
     }
 }
