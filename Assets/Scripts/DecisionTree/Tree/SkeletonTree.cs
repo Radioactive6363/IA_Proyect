@@ -46,12 +46,14 @@ public class SkeletonTree : BaseTree
     protected override void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        rb = GetComponent<Rigidbody>();
         if (player == null)
         {
             Debug.LogError("Player not Found.");
             return;
         }
+        rb = GetComponent<Rigidbody>();
+        fieldOfView = GetComponent<FOV>();
+        fieldOfView.Target = player;
         
         if (waypoints == null || waypoints.Length == 0)
         {

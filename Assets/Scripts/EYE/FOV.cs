@@ -8,7 +8,11 @@ public class FOV : MonoBehaviour
     [SerializeField] private float _distance = 5f;
     [SerializeField] private LayerMask _obstacleMask;
 
-    public GameObject Target => _target;
+    public GameObject Target
+    {
+        get => _target;
+        set => _target = value;
+    }
 
     private Vector3 Origin => transform.position;
     private Vector3 Forward => transform.forward;

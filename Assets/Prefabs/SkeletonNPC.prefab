@@ -213,12 +213,12 @@ MonoBehaviour:
   arriveRange: 1
   autoWaypointCount: 5
   autoWaypointRadius: 10
-  avoidanceRange: 0
-  avoidanceAngle: 0
-  personalArea: 0
+  avoidanceRange: 5
+  avoidanceAngle: 5
+  personalArea: 1
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   isAlive: 1
   canAttack: 0
   attackCooldown: 2
