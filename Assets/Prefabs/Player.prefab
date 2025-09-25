@@ -264,7 +264,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &7255948555749397488
 MonoBehaviour:
@@ -291,7 +291,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 977c04672e396a245a7cfdfd2930c3eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _movementSmoothness: 1
+  _movementSmoothness: 0.25
   _detectablePositions: []
   speed: 5
   _isDetectable: 0
@@ -309,4 +309,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _camera: {fileID: 6111896292720574450}
   Player: {fileID: 5926252483756597456}
-  MouseSensiblity: 100
+  MouseSensiblity: 75
