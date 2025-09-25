@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.Video;
 using static UnityEngine.UI.Image;
 
+
+[RequireComponent(typeof(FOV))]
 public class FOV : MonoBehaviour
 {
     [SerializeField] private GameObject _detectionImage;
