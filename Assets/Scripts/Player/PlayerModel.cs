@@ -36,6 +36,7 @@ public class PlayerModel : MonoBehaviour, IMove, IDetectable, IDamageable
     public void OnDamage(float damage)
     {
         life -= damage;
+        Debug.Log(life);
         if (life <= 0)
         {
             OnDeath();

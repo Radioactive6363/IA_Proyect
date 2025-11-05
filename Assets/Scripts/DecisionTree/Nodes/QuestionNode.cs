@@ -15,7 +15,6 @@ public class QuestionNode : ITreeNode
 
     public void Execute()
     {
-       //question.Invoke() ?? tNode.Execute() :: fNode.Execute(); 
        if(question.Invoke())
             tNode.Execute();
        else

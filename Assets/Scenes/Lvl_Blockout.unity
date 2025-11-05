@@ -3308,6 +3308,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1103506799105940101, guid: c180e91a6d0218f4fbdbeb093e56f326, type: 3}
+      propertyPath: personalArea
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1103506799105940101, guid: c180e91a6d0218f4fbdbeb093e56f326, type: 3}
+      propertyPath: avoidanceAngle
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 1103506799105940101, guid: c180e91a6d0218f4fbdbeb093e56f326, type: 3}
+      propertyPath: avoidanceRange
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4706466597053930235, guid: c180e91a6d0218f4fbdbeb093e56f326, type: 3}
       propertyPath: m_Name
       value: SkeletonNPC

@@ -30,7 +30,7 @@ public class SkeletonTree : BaseTree
     [SerializeField] private bool isAlive = true;
     [SerializeField] private GameObject attackVisual;
     [SerializeField] private float attackDuration;
-    [SerializeField] private bool canAttack;
+    [SerializeField] private bool canAttack = true;
     [SerializeField] private float attackForce = 3f;
     [SerializeField] private float attackCooldown = 2f;
     
@@ -63,11 +63,6 @@ public class SkeletonTree : BaseTree
         {
             CreateWaypoints();
             UpdateWaypoints();
-        }
-        else
-        {
-            currentWP = 0;
-            arrive = new Arrive(waypoints[currentWP], transform, maxSpeed, arriveRange);
         }
         
         persuit = new(player.transform, transform, persuitSpeed);
@@ -152,7 +147,7 @@ public class SkeletonTree : BaseTree
     
     private void Attack()
     {
-        if (!canAttack) return;
+        if (!canAttack || isAttacking) return;
         Debug.Log($"{this} attacks the player!");
         StartCoroutine(DoAttack());
         StartCoroutine(AttackCooldown());
@@ -164,20 +159,13 @@ public class SkeletonTree : BaseTree
         
         if (attackVisual != null)
         {
-            GameObject visual = Instantiate(
-                attackVisual, 
-                transform.position + transform.forward, 
-                transform.rotation
-            );
-            Destroy(visual, attackDuration);
+             Instantiate(attackVisual, transform.position + transform.forward, transform.rotation);
         }
-        
         Vector3 dir = (player.transform.position - transform.position).normalized;
         rb.linearVelocity = dir * attackForce;
 
         yield return new WaitForSeconds(attackDuration);
-
-        // Detener el movimiento
+        
         rb.linearVelocity = Vector3.zero;
         isAttacking = false;
     }

@@ -23,8 +23,5 @@ public class MovePlayerState : State<PlayerStates>
         }
         else
             _fsm.SetState(PlayerStates.Idle);
-
-        if (Input.GetKeyDown(KeyCode.Space))
-            _fsm.SetState(PlayerStates.Spining);
     }
 }
