@@ -38,6 +38,8 @@ public class SkeletonTree : BaseTree
     private GameObject player;
     private FOV fieldOfView;
     private bool isAttacking;
+    private Animator animator;
+    private float x, y;
         
     private Persuit persuit;
     private Arrive arrive;
@@ -73,6 +75,13 @@ public class SkeletonTree : BaseTree
     }
     protected override void Update()
     {
+
+        x= transform.position.x;
+        y= transform.position.y;
+
+        animator.SetFloat("VelX", x);
+        animator.SetFloat("VelY", y);
+
         Debug.Log(
             $"{name} tick, currentWaypoint= {waypoints[currentWP]} isAlive={isAlive} idleTimer={idleTimerHandler} distToPlayer={(player ? Vector3.Distance(transform.position, player.transform.position) : -1)}");
         base.Update();
