@@ -113,11 +113,4 @@ public class Boid : SteeringEntity
         avgVelocity /= count;
         return Steer(avgVelocity.normalized * maxSpeed);
     }
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, FM.cohesionRadius);
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, FM.separationRadius);
-    }
 }

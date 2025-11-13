@@ -5,6 +5,7 @@ public class AttackHitbox : MonoBehaviour
     [SerializeField] private float speed = 10f;
     [SerializeField] private float lifeTime = 0.5f;
     [SerializeField] private int damage = 10;
+    
 
     private void Start()
     {
@@ -27,7 +28,8 @@ public class AttackHitbox : MonoBehaviour
             damageable.OnDamage(damage); 
             Debug.Log($"{other.name} recived {damage} damage");
             
-            Destroy(gameObject); 
+            Destroy(gameObject);
+            
         }
         else if (!other.isTrigger) 
         {

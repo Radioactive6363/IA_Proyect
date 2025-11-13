@@ -45,7 +45,7 @@ public class PlayerModel : MonoBehaviour, IMove, IDetectable, IDamageable
 
     public void OnDeath()
     {
-        SceneManager.LoadScene("GameOver");
+        SceneManager.LoadScene("Defeat");
     }
     
     public bool IsDetectable => _isDetectable;

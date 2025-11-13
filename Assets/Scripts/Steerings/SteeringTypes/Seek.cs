@@ -23,9 +23,9 @@ public class Seek : ISteering
 
     public Vector3 GetSteerDir(Vector3 currentVelocity)
     {
-        var dir = target.position - npcTransform.position; // Direcci髇 = Posici髇Final - Posici髇Inicial
-        var desiredVelocity = dir.normalized * maxSpeed; // velocidad deseada = direcci髇 normalizada * velocidad m醲ima
-        Vector3 steering = desiredVelocity - currentVelocity; // correcci髇 de velocidad = velocidad deseada - actual
-        return currentVelocity += steering * Time.deltaTime; // a la velocidad actual se le suma la correcci髇 (aceleraci髇) * tiempo (Time.deltaTime)
+        var dir = target.position - npcTransform.position; // Direcci贸n = Posici贸nFinal - Posici贸nInicial
+        var desiredVelocity = dir.normalized * maxSpeed; // velocidad deseada = direcci贸n normalizada * velocidad m谩xima
+        Vector3 steering = desiredVelocity - currentVelocity; // correcci贸n de velocidad = velocidad deseada - actual
+        return currentVelocity += steering * Time.deltaTime; // a la velocidad actual se le suma la correcci贸n (aceleraci贸n) * tiempo (Time.deltaTime)
     }
 }
