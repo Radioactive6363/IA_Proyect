@@ -31,17 +31,9 @@ public class Persuit : ISteering
         var dirToPoint = futureTargetPosition - npcTransform.position;
         var dirToTarget = target.position - npcTransform.position;
         
-        Debug.DrawRay(npcTransform.position, dirToPoint, Color.green);
-
-        var dotRemaped = (Vector3.Dot(dirToPoint, dirToTarget) + 1) / 2;
+        var dotRemaped = (Vector3.Dot(dirToPoint.normalized, dirToTarget.normalized) + 1) / 2;
         dirToPoint = Vector3.Lerp(dirToTarget, dirToPoint, dotRemaped);
-
-        var desiredVelocity = dirToPoint.normalized * maxSpeed; 
-        Vector3 steering = desiredVelocity - currentVelocity;
         
-        Debug.DrawRay(npcTransform.position, dirToPoint, Color.green);
-        Debug.DrawRay(npcTransform.position, dirToTarget, Color.yellow);
-        return currentVelocity += steering * Time.deltaTime; 
-
+        return dirToPoint.normalized; 
     }
 }

@@ -1,152 +1,144 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(FOV))]
 public class SkeletonTree : BaseTree
 {
-    [Header("Stats")] 
-    [SerializeField] private float minIdleTime = 5f;
-    [SerializeField] private float maxIdleTime = 10f;
-    [SerializeField] private float maxSpeed = 3f; 
-    [SerializeField] private float persuitSpeed = 10f; 
-    [SerializeField] float awarenessDistance = 15f;
-    [SerializeField] float attackDistance = 2f;
+    [Header("Movement Stats")] 
+    [SerializeField] private float speed = 4f;
+    [SerializeField] private float nodeReachedDistance = 1.1f;
+    [SerializeField] private float waypointArrivalDistance = 1.5f;
     
-    [Header("Steering")] 
-    [SerializeField] Transform[] waypoints;
-    [SerializeField] int currentWP = 0;
-    [SerializeField] float arriveRange = 1f;
-    [SerializeField] int autoWaypointCount = 5;
-    [SerializeField] float autoWaypointRadius = 10f;
+    [Header("Rotation Settings")]
+    [SerializeField] private float patrolTurnSpeed = 10f;
+    [SerializeField] private float chaseTurnSpeed = 30f;
 
-    [Header("Avoidance")] 
-    [SerializeField] float avoidanceRange;
-    [SerializeField] float avoidanceAngle;
-    [SerializeField] float personalArea;
-    [SerializeField] LayerMask obstacleMask;
+    [Header("AI Logic")]
+    [SerializeField] private float awarenessDistance = 15f;
+    [SerializeField] private float attackDistance = 1.5f;
+    [SerializeField] private float minIdleTime = 2f;
+    [SerializeField] private float maxIdleTime = 5f;
+    
+    [Header("Steering Settings")]
+    [SerializeField] private LayerMask obstacleMask;
+    [SerializeField] private float avoidanceRadius = 2f;
+    private Persuit steeringPursuit;
+    private ObstacleAvoidance steeringAvoidance;
 
-    [Header("Behaviour")] 
+    [Header("Combat")] 
     [SerializeField] private bool isAlive = true;
     [SerializeField] private GameObject attackVisual;
-    [SerializeField] private float attackDuration;
+    [SerializeField] private float attackDuration = 1f;
     [SerializeField] private bool canAttack = true;
-    [SerializeField] private float attackForce = 3f;
     [SerializeField] private float attackCooldown = 2f;
+    
+    [Header("Patrol")]
+    [SerializeField] Transform[] patrolPoints; 
     
     private Rigidbody rb;
     private GameObject player;
     private FOV fieldOfView;
     private bool isAttacking;
-    private Animator animator;
-    private float x, y;
-        
-    private Persuit persuit;
-    private Arrive arrive;
-    private ObstacleAvoidance avoidance;
-    
-    private Vector3 velocity;
     private float idleTimerHandler;
-    private bool isWaiting = false;
+    
+    private List<PFNode> currentPath = new List<PFNode>();
+    private Transform currentWaypointTarget;
+    private int patrolIndex = 0;
 
     protected override void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        if (player == null)
-        {
-            Debug.LogError("Player not Found.");
-            return;
-        }
         rb = GetComponent<Rigidbody>();
         fieldOfView = GetComponent<FOV>();
         fieldOfView.Target = player;
         
-        if (waypoints == null || waypoints.Length == 0)
+        steeringPursuit = new Persuit(player.transform, transform, speed);
+        steeringAvoidance = new ObstacleAvoidance(transform, avoidanceRadius, 90, 1f, obstacleMask);
+
+        if (patrolPoints == null || patrolPoints.Length == 0)
         {
-            CreateWaypoints();
-            UpdateWaypoints();
+            GameObject wp = new GameObject("AutoWP_Fallback");
+            wp.transform.position = transform.position;
+            patrolPoints = new Transform[] { wp.transform };
         }
-        
-        persuit = new(player.transform, transform, persuitSpeed);
-        arrive = new (waypoints[currentWP], transform, maxSpeed, arriveRange);
-        avoidance = new (transform, avoidanceRange, avoidanceAngle, personalArea, obstacleMask);
+        currentWaypointTarget = patrolPoints[0];
 
         base.Start();
-    }
-    protected override void Update()
-    {
-
-        x= transform.position.x;
-        y= transform.position.y;
-
-        animator.SetFloat("VelX", x);
-        animator.SetFloat("VelY", y);
-
-        Debug.Log(
-            $"{name} tick, currentWaypoint= {waypoints[currentWP]} isAlive={isAlive} idleTimer={idleTimerHandler} distToPlayer={(player ? Vector3.Distance(transform.position, player.transform.position) : -1)}");
-        base.Update();
     }
 
     protected override void CreateTree()
     {
-        ActionNode patrol = new(Patrol);
-        ActionNode idle = new(Idle);
-        ActionNode attack = new(Attack);
-        ActionNode death = new(Death);
-        ActionNode persecute = new(Persecute);
+        ActionNode patrol = new ActionNode(Patrol);
+        ActionNode idle = new ActionNode(Idle);
+        ActionNode attack = new ActionNode(Attack);
+        ActionNode death = new ActionNode(Death);
+        ActionNode persecute = new ActionNode(Persecute);
         
-        QuestionNode arrivedAtPoint = new(
-            () => Vector3.Distance(transform.position, waypoints[currentWP].position) < 0.3f,
-            idle, patrol
+        QuestionNode arrivedAtWaypoint = new QuestionNode(
+            () => GetFlatDistance(transform.position, currentWaypointTarget.position) < waypointArrivalDistance,
+            idle, patrol 
         );
         
-        QuestionNode isAtAttackDistance = new(
-            () => Vector3.Distance(transform.position, player.transform.position) < attackDistance,
+        QuestionNode isAtAttackRange = new QuestionNode(
+            () => GetFlatDistance(transform.position, player.transform.position) < attackDistance,
             attack, persecute
         );
         
-        QuestionNode isPlayerCloseOrInSight = new(
-            () => Vector3.Distance(transform.position, player.transform.position) < awarenessDistance || fieldOfView.CheckDetection(),
-            isAtAttackDistance, arrivedAtPoint
+        QuestionNode detectPlayer = new QuestionNode(
+            () => GetFlatDistance(transform.position, player.transform.position) < awarenessDistance || fieldOfView.CheckDetection(),
+            isAtAttackRange, arrivedAtWaypoint 
         );
         
         _rootNode = new QuestionNode(
             () => isAlive,
-            isPlayerCloseOrInSight, death
+            detectPlayer, death
         );
     }
 
+    // --- ACCIONES ---
+
     private void Patrol()
     {
-        Debug.Log($"{this} Patroling");
-        velocity = arrive.GetSteerDir(velocity);
-        velocity.y = rb.linearVelocity.y;
-        Movement();
+        if (currentPath == null || currentPath.Count == 0)
+        {
+            RequestPathTo(currentWaypointTarget.position);
+        }
+        
+        if (currentPath == null || currentPath.Count == 0)
+        {
+             MoveDirectlyTo(currentWaypointTarget.position);
+        }
+        else
+        {
+            MoveAlongPath();
+        }
     }
 
-    private void Death()
+    private void Persecute()
     {
-        Destroy(gameObject);
+        currentPath.Clear(); 
+        
+        Vector3 steeringDir = steeringPursuit.GetSteerDir(rb.linearVelocity);
+        Vector3 velocityBeforeAvoidance = steeringDir * speed;
+        Vector3 avoidedDirection = steeringAvoidance.GetDir(velocityBeforeAvoidance);
+        Vector3 finalVelocity = avoidedDirection.normalized * speed;
+        if (finalVelocity.sqrMagnitude < 0.1f) finalVelocity = velocityBeforeAvoidance;
+        Vector3 flatVel = new Vector3(finalVelocity.x, rb.linearVelocity.y, finalVelocity.z);
+        rb.linearVelocity = flatVel;
+        
+        RotateTowards(finalVelocity.normalized, chaseTurnSpeed); 
     }
+
     private void Idle()
     {
+        StopMovement();
         if (idleTimerHandler <= 0)
         {
-            float chance = RandomGenerator.Range(0f, 1f);
-
-            if (chance < 0.5f)
-            {
-                Debug.Log($"{this} staying idle");
-                float randomTime = RandomGenerator.Range(minIdleTime,maxIdleTime);
-                idleTimerHandler = randomTime;
-            }
-            else
-            {
-                Debug.Log($"{this} generating new waypoints");
-                UpdateWaypoints();
-                arrive.SetTarget = waypoints[currentWP];
-                idleTimerHandler = 0;
-            }
+            patrolIndex = (patrolIndex + 1) % patrolPoints.Length;
+            currentWaypointTarget = patrolPoints[patrolIndex];
+            idleTimerHandler = Random.Range(minIdleTime, maxIdleTime);
         }
         else
         {
@@ -156,26 +148,114 @@ public class SkeletonTree : BaseTree
     
     private void Attack()
     {
+        StopMovement();
+        RotateTowards((player.transform.position - transform.position).normalized, chaseTurnSpeed);
+
         if (!canAttack || isAttacking) return;
-        Debug.Log($"{this} attacks the player!");
         StartCoroutine(DoAttack());
         StartCoroutine(AttackCooldown());
+    }
+
+    private void Death()
+    {
+        StopMovement();
+        Destroy(gameObject, 0.1f); 
+    }
+
+    // --- LOGIC A* ---
+
+    private void RequestPathTo(Vector3 targetPos)
+    {
+        PFNode startNode = PathFindingManager.instance.Closest(transform.position);
+        PFNode endNode = PathFindingManager.instance.Closest(targetPos);
+
+        if (startNode == null || endNode == null) return;
+
+        PathFindingManager.instance.goal = endNode; 
+        currentPath = PathFindingManager.instance.GetPath(startNode);
+        
+        if (currentPath != null && currentPath.Count > 1)
+        {
+            if (GetFlatDistance(transform.position, currentPath[0].transform.position) < nodeReachedDistance)
+                currentPath.RemoveAt(0);
+        }
+    }
+
+    private void MoveAlongPath()
+    {
+        if (currentPath == null || currentPath.Count == 0) return;
+
+        if (currentPath.Count > 1)
+        {
+            float distToCurrent = GetFlatDistance(transform.position, currentPath[0].transform.position);
+            float distToNext = GetFlatDistance(transform.position, currentPath[1].transform.position);
+            if (distToNext < distToCurrent) currentPath.RemoveAt(0);
+        }
+        
+        if (currentPath.Count == 0) return;
+
+        PFNode targetNode = currentPath[0];
+
+        Vector3 desiredDirection = (targetNode.transform.position - transform.position).normalized;
+        Vector3 flatDesiredDir = new Vector3(desiredDirection.x, 0, desiredDirection.z).normalized;
+        Vector3 avoidanceDir = steeringAvoidance.GetDir(flatDesiredDir * speed);
+
+        Vector3 finalFlatDir = new Vector3(avoidanceDir.x, 0, avoidanceDir.z).normalized * speed;
+        
+        if (finalFlatDir.sqrMagnitude < 0.1f) finalFlatDir = flatDesiredDir * speed;
+
+        rb.linearVelocity = new Vector3(finalFlatDir.x, rb.linearVelocity.y, finalFlatDir.z);
+        
+        RotateTowards(finalFlatDir.normalized, patrolTurnSpeed);
+
+        if (GetFlatDistance(transform.position, targetNode.transform.position) < nodeReachedDistance)
+        {
+            currentPath.RemoveAt(0);
+        }
+    }
+
+    // --- UTILIDADES ---
+
+    private void MoveDirectlyTo(Vector3 target)
+    {
+        Vector3 direction = (target - transform.position).normalized;
+        Vector3 flatDir = new Vector3(direction.x, 0, direction.z).normalized;
+        rb.linearVelocity = new Vector3(flatDir.x * speed, rb.linearVelocity.y, flatDir.z * speed);
+        
+        RotateTowards(flatDir, patrolTurnSpeed);
+    }
+
+    private void StopMovement()
+    {
+        rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+    }
+
+    private void RotateTowards(Vector3 dir, float currentTurnSpeed)
+    {
+        if (dir.sqrMagnitude < 0.1f) return; 
+        
+        dir.Normalize();
+
+        Quaternion lookRot = Quaternion.LookRotation(new Vector3(dir.x, 0, dir.z));
+
+        float angle = Quaternion.Angle(transform.rotation, lookRot);
+        float dynamicSpeed = (angle > 90f) ? currentTurnSpeed * 2 : currentTurnSpeed;
+
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * dynamicSpeed);
+    }
+
+    private float GetFlatDistance(Vector3 a, Vector3 b)
+    {
+        Vector3 aFlat = new Vector3(a.x, 0, a.z);
+        Vector3 bFlat = new Vector3(b.x, 0, b.z);
+        return Vector3.Distance(aFlat, bFlat);
     }
 
     private IEnumerator DoAttack()
     {
         isAttacking = true;
-        
-        if (attackVisual != null)
-        {
-             Instantiate(attackVisual, transform.position + transform.forward, transform.rotation);
-        }
-        Vector3 dir = (player.transform.position - transform.position).normalized;
-        rb.linearVelocity = dir * attackForce;
-
+        if (attackVisual != null) Instantiate(attackVisual, transform.position + transform.forward, transform.rotation);
         yield return new WaitForSeconds(attackDuration);
-        
-        rb.linearVelocity = Vector3.zero;
         isAttacking = false;
     }
     
@@ -184,40 +264,5 @@ public class SkeletonTree : BaseTree
         canAttack = false;
         yield return new WaitForSeconds(attackCooldown);
         canAttack = true;
-    }
-
-    private void Persecute()
-    {
-        Debug.Log($"{this} Persecute");
-        velocity = persuit.GetSteerDir(velocity);
-        velocity.y = rb.linearVelocity.y;
-        Movement();
-    }
-
-    private void Movement()
-    {
-        velocity = avoidance.GetDir2(velocity);
-        rb.linearVelocity = velocity;
-    }
-    
-    private void CreateWaypoints()
-    {
-        waypoints = new Transform[autoWaypointCount];
-        for (int i = 0; i < autoWaypointCount; i++)
-        {
-            GameObject wp = new GameObject($"{this} Waypoint_{i}");
-            waypoints[i] = wp.transform;
-        }
-    }
-    
-    private void UpdateWaypoints()
-    {
-        currentWP = 0;
-        for (int i = 0; i < waypoints.Length; i++)
-        {
-            Vector3 randomPos = transform.position + Random.insideUnitSphere * autoWaypointRadius;
-            randomPos.y = transform.position.y;
-            waypoints[i].position = randomPos;
-        }
     }
 }

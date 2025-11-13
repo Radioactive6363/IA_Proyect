@@ -3,17 +3,19 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(AudioSource))]
-public class RatTree : BaseTree
+public class RatTree : Boid 
 {
-    [Header("Stats")] 
+    [Header("Rat Stats")] 
     [SerializeField] private float minIdleTime = 1f;
     [SerializeField] private float maxIdleTime = 4f;
-    [SerializeField] private float maxSpeed = 3f;
     [SerializeField] private float fleeSpeed = 6f;
     [SerializeField] float awarnessDistance = 20f;
     [SerializeField] float scaredDuration = 2f;
-
-    [Header("Steering")] 
+    
+    [Header("Flocking")] 
+    [SerializeField] float flockingForce = 2f;
+    
+    [Header("Wander Settings")] 
     [SerializeField] Transform[] waypoints;
     [SerializeField] float arriveRange = 1f;
     [SerializeField] int autoWaypointCount = 5;
@@ -28,68 +30,65 @@ public class RatTree : BaseTree
     [Header("Extras")]
     [SerializeField] private AudioClip[] squeakSounds;
     
+    private Rigidbody rb; 
+    private ActionNode wander; 
+    private ActionNode idle;
+    private ActionNode scared;
+    private ActionNode runAway;
+    private QuestionNode rootNode;
+
     private int currentWP = 0;
     private AudioSource audioSource;
     private Dictionary<AudioClip, float> _audioValues;
-    private Rigidbody rb;
     private GameObject player;
     
     private Flee flee;
     private Arrive arrive;
     private ObstacleAvoidance avoidance;
 
-    private Vector3 velocity;
     private float idleTimerHandler;
     private bool isScared;
     private float scaredTimer;
-    private bool isWaiting = false;
+    private bool useFlocking = true;
 
     protected override void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
         audioSource = GetComponent<AudioSource>();
         _audioValues = new Dictionary<AudioClip, float>();
-        rb = GetComponent<Rigidbody>();
-        GenerateAudio();
-        if (player == null)
-        {
-            Debug.LogError("Player not Found.");
-            return;
-        }
 
+        rb = GetComponent<Rigidbody>();
+        
+        GenerateAudio();
+        
         if (waypoints == null || waypoints.Length == 0)
         {
             CreateWaypoints();
             UpdateWaypoints();
-        }
-        else
-        {
-            currentWP = 0;
-            arrive = new Arrive(waypoints[currentWP], transform, maxSpeed, arriveRange);
         }
 
         flee = new Flee(player.transform, transform, fleeSpeed);
         arrive = new Arrive(waypoints[currentWP], transform, maxSpeed, arriveRange);
         avoidance = new ObstacleAvoidance(transform, avoidanceRange, avoidanceAngle, personalArea, obstacleMask);
 
-        base.Start();
-    }
-    protected override void Update()
-    {
-        Debug.Log(
-            $"{name} tick, currentWaypoint= {waypoints[currentWP]} isScared={isScared} idleTimer={idleTimerHandler} distToPlayer={(player ? Vector3.Distance(transform.position, player.transform.position) : -1)}");
-        base.Update();
+        base.Start(); 
+        CreateTree();
     }
 
-    protected override void CreateTree()
+    protected override void Update()
     {
-        ActionNode wander = new(Wandering);
-        ActionNode idle = new(Idle);
-        ActionNode scared = new(Scared);
-        ActionNode runAway = new(RunAway);
+        rootNode?.Execute();
+    }
+    
+    private void CreateTree()
+    {
+        wander = new ActionNode(Wandering);
+        idle = new ActionNode(Idle);
+        scared = new ActionNode(Scared);
+        runAway = new ActionNode(RunAway);
         
         QuestionNode arrivedAtPoint = new(
-            () => Vector3.Distance(transform.position, waypoints[currentWP].position) < 0.3f,
+            () => Vector3.Distance(transform.position, waypoints[currentWP].position) < 2f, 
             idle, wander
         );
         
@@ -98,7 +97,7 @@ public class RatTree : BaseTree
             scared, arrivedAtPoint
         );
         
-        _rootNode = new QuestionNode(
+        rootNode = new QuestionNode(
             () => isScared,
             runAway, isPlayerClose
         );
@@ -106,27 +105,36 @@ public class RatTree : BaseTree
 
     private void Wandering()
     {
-        Debug.Log("Rat Wandering");
-        velocity = arrive.GetSteerDir(velocity);
-        velocity.y = rb.linearVelocity.y;
+        velocity = rb.linearVelocity;
+        useFlocking = true;
+        
+        Vector3 flockingPush = CalculateFlockingForce();
+        Vector3 arrivePush = arrive.GetSteerDir(transform.position); 
+        
+        Vector3 flockingDir = flockingPush.magnitude > 0.01f ? flockingPush.normalized : Vector3.zero;
+        Vector3 arriveDir = arrivePush.normalized;
+        
+        Vector3 finalDirection = (arriveDir * 1.0f) + (flockingDir * 2.0f);
+
+
+        Vector3 targetVelocity = finalDirection.normalized * maxSpeed;
+        
+        velocity = Vector3.MoveTowards(velocity, targetVelocity, maxForce * Time.deltaTime);
+        
         Movement();
     }
-
+    
     private void Idle()
     {
+        velocity = Vector3.zero; 
         if (idleTimerHandler <= 0)
         {
-            float chance = RandomGenerator.Range(0f, 1f);
-
-            if (chance < 0.5f)
+            if (Random.value < 0.5f)
             {
-                Debug.Log($"{this} staying idle");
-                float randomTime = RandomGenerator.Range(minIdleTime,maxIdleTime);
-                idleTimerHandler = randomTime;
+                idleTimerHandler = Random.Range(minIdleTime, maxIdleTime);
             }
             else
             {
-                Debug.Log($"{this} generating new waypoints");
                 UpdateWaypoints();
                 arrive.SetTarget = waypoints[currentWP];
                 idleTimerHandler = 0;
@@ -142,32 +150,58 @@ public class RatTree : BaseTree
     {
         if (!isScared)
         {
-            Debug.Log($"{this} Scared");
+            isScared = true;
             scaredTimer = scaredDuration;
             idleTimerHandler = 0;
             PlayRandomSqueak();
-            isScared = true;
+            useFlocking = false; 
         }
     }
 
     private void RunAway()
     {
+        base.velocity = rb.linearVelocity;
+        
         if (scaredTimer <= 0)
         {
-            UpdateWaypoints();
             isScared = false;
+            UpdateWaypoints(); 
             return;
         }
-        velocity = flee.GetSteerDir(velocity);
-        velocity.y = rb.linearVelocity.y;
+        Vector3 fleeForce = flee.GetSteerDir(velocity);
+        Vector3 runDirection = fleeForce.normalized;
+        Vector3 targetVelocity = runDirection * (maxSpeed * 1.5f); 
+        velocity = Vector3.MoveTowards(velocity, targetVelocity, (maxForce * 2f) * Time.deltaTime);
         Movement();
+
         scaredTimer -= Time.deltaTime;
     }
 
     private void Movement()
     {
-        velocity = avoidance.GetDir2(velocity);
-        rb.linearVelocity = velocity;
+        Vector3 avoidanceDir = avoidance.GetDir2(velocity); 
+        if(avoidanceDir != Vector3.zero)
+        {
+            velocity = Vector3.Lerp(velocity, avoidanceDir.normalized * maxSpeed, Time.deltaTime * 5f);
+        }
+        Vector3 finalVel = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
+        rb.linearVelocity = finalVel;
+        
+        if (finalVel.sqrMagnitude > 0.1f)
+        {
+            Vector3 lookDir = new Vector3(finalVel.x, 0, finalVel.z);
+            if (lookDir != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(lookDir);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
+            }
+        }
+    }
+
+    private Vector3 CalculateFlockingForce()
+    {
+        if (!useFlocking) return Vector3.zero;
+        return GetFlockingForce(); 
     }
 
     private void GenerateAudio()
@@ -175,20 +209,15 @@ public class RatTree : BaseTree
         if (squeakSounds.Length > 0)
         {
             _audioValues[squeakSounds[0]] = 0.5f;
-            _audioValues[squeakSounds[1]] = 0.3f;
-            _audioValues[squeakSounds[2]] = 0.2f;
+            if(squeakSounds.Length > 1) _audioValues[squeakSounds[1]] = 0.3f;
+            if(squeakSounds.Length > 2) _audioValues[squeakSounds[2]] = 0.2f;
         }
     }
     
     private void PlayRandomSqueak()
     {
-        AudioClip chosenClip = RandomGenerator.Roulette(_audioValues);
-
-        if (chosenClip != null)
-        {
-            audioSource.PlayOneShot(chosenClip);
-            Debug.Log($"{this} squeaked: {chosenClip.name}");
-        }
+        if (squeakSounds.Length > 0)
+            audioSource.PlayOneShot(squeakSounds[Random.Range(0, squeakSounds.Length)]);
     }
     
     private void CreateWaypoints()
@@ -196,7 +225,7 @@ public class RatTree : BaseTree
         waypoints = new Transform[autoWaypointCount];
         for (int i = 0; i < autoWaypointCount; i++)
         {
-            GameObject wp = new GameObject($"{this}RatWaypoint_{i}");
+            GameObject wp = new GameObject($"RatWP_{i}");
             waypoints[i] = wp.transform;
         }
     }
@@ -204,9 +233,11 @@ public class RatTree : BaseTree
     private void UpdateWaypoints()
     {
         currentWP = 0;
+        Vector3 groupCenter = transform.position + Random.insideUnitSphere * autoWaypointRadius; 
+        
         for (int i = 0; i < waypoints.Length; i++)
         {
-            Vector3 randomPos = transform.position + Random.insideUnitSphere * autoWaypointRadius;
+            Vector3 randomPos = groupCenter + Random.insideUnitSphere * 2f; 
             randomPos.y = transform.position.y;
             waypoints[i].position = randomPos;
         }

@@ -18,11 +18,20 @@ public class AttackHitbox : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.CompareTag("Enemy")) return; 
+
         IDamageable damageable = other.GetComponent<IDamageable>();
+        
         if (damageable != null)
         {
-            damageable.OnDamage(10f);
-            Debug.Log($"{other.name} recibió 10 de daño");
+            damageable.OnDamage(damage); 
+            Debug.Log($"{other.name} recived {damage} damage");
+            
+            Destroy(gameObject); 
+        }
+        else if (!other.isTrigger) 
+        {
+            Destroy(gameObject);
         }
     }
 }

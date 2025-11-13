@@ -23,10 +23,9 @@ public class Flee : ISteering
 
     public Vector3 GetSteerDir(Vector3 currentVelocity)
     {
-        var dir = npcTransform.position - target.position; // Dirección = PosiciónInicial - PosiciónFinal
-        var desiredVelocity = dir.normalized * maxSpeed; // velocidad deseada = dirección normalizada * velocidad máxima
-        Vector3 steering = desiredVelocity - currentVelocity; // corrección de velocidad = velocidad deseada - actual
-        return currentVelocity += steering * Time.deltaTime; // a la velocidad actual se le suma la corrección (aceleración) * tiempo (Time.deltaTime)
+        Vector3 desiredDir = (npcTransform.position - target.position).normalized;
+        Vector3 desiredVelocity = desiredDir * maxSpeed;
+        return desiredVelocity - currentVelocity;
     }
 }
 
