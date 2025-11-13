@@ -94,11 +94,11 @@ public class ObstacleAvoidance
             Debug.Log("NewDir" + newDir);
             Debug.DrawRay(npcTransform.position, newDir, Color.red);
 
-            var clampedDistance = Mathf.Clamp(hitDistance - _personalArea, 0, _radius); //Distancia clampeada hacia la colision m�s cercana
-            var inversedClampedDistance = _radius - clampedDistance; //Invierto el valor sobre radio
-            var proportionalDistance = inversedClampedDistance / _radius; // Lo convierto a valor entre 0 y 1
+            var clampedDistance = Mathf.Clamp(hitDistance - _personalArea, 0, _radius);
+            var inversedClampedDistance = _radius - clampedDistance;
+            var proportionalDistance = inversedClampedDistance / _radius; 
             
-            return Vector3.Lerp(currDir.normalized, newDir.normalized, proportionalDistance).normalized * currDir.magnitude; // Interpolo entre la direccion actual y la direccion de avoidance
+            return Vector3.Lerp(currDir.normalized, newDir.normalized, proportionalDistance).normalized * currDir.magnitude; 
         }
         return currDir;
     }
