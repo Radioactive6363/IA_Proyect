@@ -15,4 +15,10 @@ public class MainMenu : MonoBehaviour
 
         Debug.Log("Juego Cerrado");
     }
+
+    public void Reiniciar()
+    {
+        Time.timeScale = 1.0f;
+        SceneManager.LoadScene("Menu");
+    }
 }
