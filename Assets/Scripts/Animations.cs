@@ -17,11 +17,11 @@ public class Animations : MonoBehaviour
 
     public void Idle()
     {
-        animator.Play("Idle")
+        animator.Play("Idle");
     }
     public void Walk()
     {
-        animator.Play("Walk")
+        animator.Play("Walk");
     }
 
     public void Attack()
