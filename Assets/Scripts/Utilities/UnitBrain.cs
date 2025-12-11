@@ -29,10 +29,6 @@ public class UnitBrain : SteeringEntity
     [SerializeField] float cohesionRadius = 7f;
     [SerializeField] float alignmentRadius = 7f;
     
-    [Header("Patrol Settings")]
-    public Transform[] patrolWaypoints; 
-    [HideInInspector] public int currentWaypointIndex = 0;
-    
     [Header("Team Visuals")]
     [SerializeField] private Renderer _modelRenderer; 
     [SerializeField] private GameObject _leaderAccessory;

@@ -4,14 +4,12 @@ using System.Collections.Generic;
 public class StatePatrol : State<UnitInputs>
 {
     UnitBrain _brain;
-    
-    // LeaderData
+
     List<PFNode> _path;
     int _currentNode;
+    bool _isWaiting;
+    float _waitTimer;
     
-    // SoldierData
-    Arrive _arriveSteering;
-
     public StatePatrol(UnitBrain b) 
     { 
         _brain = b; 
@@ -19,9 +17,9 @@ public class StatePatrol : State<UnitInputs>
 
     public override void Enter()
     {
-        if (_brain.isLeader && _brain.patrolWaypoints.Length > 0)
+        if (_brain.isLeader)
         {
-            CalculatePathToWaypoint();
+            SetRandomDestination();
         }
     }
 
@@ -32,10 +30,10 @@ public class StatePatrol : State<UnitInputs>
             _brain.SetState(UnitInputs.EnemySpotted);
             return;
         }
-
+        
         if (_brain.isLeader)
         {
-            ExecuteLeaderPatrol();
+            ExecuteLeaderWander();
         }
         else
         {
@@ -43,39 +41,43 @@ public class StatePatrol : State<UnitInputs>
         }
     }
     
-    private void ExecuteLeaderPatrol()
+    private void ExecuteLeaderWander()
     {
-        if (_brain.patrolWaypoints.Length == 0) return; 
-        
-        Transform currentWP = _brain.patrolWaypoints[_brain.currentWaypointIndex];
-        
-        float distToWP = Vector3.Distance(_brain.transform.position, currentWP.position);
-        
-        if (distToWP < 1.5f)
+        if (_isWaiting)
         {
-            _brain.currentWaypointIndex = (_brain.currentWaypointIndex + 1) % _brain.patrolWaypoints.Length;
-            CalculatePathToWaypoint();
+            _brain.ApplyMovement(Vector3.zero, false);
+            
+            if (Time.time > _waitTimer)
+            {
+                _isWaiting = false;
+                SetRandomDestination();
+            }
             return;
         }
         
-        if (_path != null && _currentNode < _path.Count)
+        if (_path == null || _path.Count == 0)
+        {
+            SetRandomDestination();
+            return;
+        }
+        
+        if (_currentNode < _path.Count)
         {
             Vector3 targetNodePos = _path[_currentNode].transform.position;
-            
-            var seek = new Seek(null, _brain.transform, _brain.MaxSpeed);
+
             Vector3 dir = (targetNodePos - _brain.transform.position).normalized * _brain.MaxSpeed;
             
             _brain.ApplyMovement(dir, false);
             
-            if (Vector3.Distance(_brain.transform.position, targetNodePos) < 1f)
+            if (Vector3.Distance(_brain.transform.position, targetNodePos) < 1.5f)
             {
                 _currentNode++;
             }
         }
         else
         {
-            var arrive = new Arrive(currentWP, _brain.transform, _brain.MaxSpeed, 2f);
-            _brain.ApplyMovement(arrive.GetSteerDir(_brain.Velocity), false);
+            _isWaiting = true;
+            _waitTimer = Time.time + Random.Range(1f, 3f);
         }
     }
     
@@ -87,23 +89,45 @@ public class StatePatrol : State<UnitInputs>
         
         var arrive = new Arrive(_brain.myLeader.transform, _brain.transform, _brain.MaxSpeed, 5f);
         Vector3 followForce = arrive.GetSteerDir(_brain.Velocity);
-        
+
         if (Vector3.Distance(_brain.transform.position, _brain.myLeader.transform.position) < stopDistance)
-        {
             followForce = Vector3.zero; 
-        }
-        
+
         _brain.ApplyMovement(followForce, true);
     }
 
-    private void CalculatePathToWaypoint()
+    private void SetRandomDestination()
     {
         if(PathFindingManager.instance == null) return;
-
-        var start = PathFindingManager.instance.Closest(_brain.transform.position);
-        var end = PathFindingManager.instance.Closest(_brain.patrolWaypoints[_brain.currentWaypointIndex].position);
         
-        _path = PathFindingManager.instance.GetPath(start, end);
-        _currentNode = 0;
+        PFNode randomNode = GetRandomValidNode();
+        
+        if (randomNode != null)
+        {
+            var start = PathFindingManager.instance.Closest(_brain.transform.position);
+            
+            _path = PathFindingManager.instance.GetPath(start, randomNode);
+            _currentNode = 0;
+        }
+    }
+
+    private PFNode GetRandomValidNode()
+    {
+        var gridNodes = PathFindingManager.instance.grid.Nodes;
+        
+        for (int i = 0; i < 10; i++)
+        {
+            int randomIndex = Random.Range(0, gridNodes.Length);
+            PFNode candidate = gridNodes[randomIndex];
+            
+            if (candidate != null && !candidate.isBlocked)
+            {
+                if (Vector3.Distance(_brain.transform.position, candidate.transform.position) > 5f)
+                {
+                    return candidate;
+                }
+            }
+        }
+        return null;
     }
 }
