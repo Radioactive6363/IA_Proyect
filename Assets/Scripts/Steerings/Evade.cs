@@ -5,49 +5,39 @@ public class Evade : ISteering
     private Transform npcTransform;
     private Transform target;
     private float maxSpeed;
-    private float timePrediction = 0.5f;
+    private float maxPredictionTime = 1f;
     private Rigidbody rb;
-    public Transform SetTarget
-    {
-        set
-        {
-            target = value;
-        }
+
+    public Transform SetTarget 
+    { 
+        set 
+        { 
+            target = value; 
+            if (target != null) rb = target.GetComponent<Rigidbody>();
+        } 
     }
 
     public Evade(Transform target, Transform npcTransform, float maxSpeed)
     {
         this.target = target;
-        rb = target.GetComponent<Rigidbody>();
         this.npcTransform = npcTransform;
         this.maxSpeed = maxSpeed;
+        if(target != null) rb = target.GetComponent<Rigidbody>();
     }
 
     public Vector3 GetSteerDir(Vector3 currentVelocity)
     {
-        var dist = (target.position - npcTransform.position).magnitude;
-        var futureTargetPosition = target.position + rb.linearVelocity * timePrediction * dist;
+        if (target == null) return Vector3.zero;
 
-        var dirFromPoint = npcTransform.position - futureTargetPosition; // Direcci�n = Posici�nInicial - Posici�nFinal 
-        var dirFromTarget = npcTransform.position - target.position; // Direcci�n = Posici�nInicial - Posici�nFinal
+        float dist = (target.position - npcTransform.position).magnitude;
+        
+        Vector3 targetVel = Vector3.zero;
+        if (rb != null) targetVel = rb.linearVelocity;
 
-        //if(Vector3.Dot(dirToPoint, dirToTarget) < 0)
-        //{
-        //    dirToPoint = dirToTarget;
-        //}
-        Debug.DrawRay(npcTransform.position, dirFromPoint, Color.blue);
-
-        var dotRemaped = (Vector3.Dot(dirFromPoint, dirFromTarget) + 1) / 2;
-        dirFromPoint = Vector3.Lerp(dirFromPoint, dirFromTarget, dotRemaped);
-
-        var desiredVelocity = dirFromPoint.normalized * maxSpeed; // velocidad deseada = direcci�n normalizada * velocidad m�xima
-        Vector3 steering = desiredVelocity - currentVelocity; // correcci�n de velocidad = velocidad deseada - actual
-
-
-        Debug.DrawRay(npcTransform.position, dirFromPoint, Color.magenta);
-        Debug.DrawRay(npcTransform.position, dirFromTarget, Color.yellow);
-        return currentVelocity += steering * Time.deltaTime; // a la velocidad actual se le suma la correcci�n (aceleraci�n) * tiempo (Time.deltaTime)
-
-
+        float lookAhead = Mathf.Clamp(dist / maxSpeed, 0, maxPredictionTime);
+        
+        Vector3 futurePosition = target.position + (targetVel * lookAhead);
+        
+        return (npcTransform.position - futurePosition).normalized * maxSpeed;
     }
 }

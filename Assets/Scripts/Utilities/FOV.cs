@@ -54,6 +54,7 @@ public class FOV : MonoBehaviour
         return !Physics.Linecast(Origin, target, _obstacleMask);
     }
 
+/*
     private void OnDrawGizmos()
     {
         Color myColor = Color.blue;
@@ -71,4 +72,5 @@ public class FOV : MonoBehaviour
             Gizmos.DrawLine(Origin, detectable.DetectablePositions[i].position);
         }
     }
+*/
 }

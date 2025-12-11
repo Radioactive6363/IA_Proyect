@@ -3,5 +3,5 @@ using UnityEngine;
 
 public interface IFlockingBehaviour
 {
-    public Vector3 GetDir(List<Boid> boids);
+    Vector3 GetDir(List<UnitBrain> neighbors, UnitBrain owner);
 }

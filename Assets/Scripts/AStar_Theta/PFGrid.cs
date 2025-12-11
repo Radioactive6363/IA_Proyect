@@ -33,16 +33,22 @@ public class PFGrid : MonoBehaviour
         for (int i = 0; i < nodes.Length; i++)
         {
             PFNode n = nodes[i];
-            Debug.Log($"{i}, {n.x}, {n.y}");
-            if (n.x > 0) n.neighbors.Add(nodes[n.x - 1 + n.y * height]);
-            if (n.x < width - 1) n.neighbors.Add(nodes[n.x + 1 + n.y * height]);
-            if (n.y > 0) n.neighbors.Add(nodes[n.x + (n.y - 1) * height]);
-            if (n.y < height - 1) n.neighbors.Add(nodes[n.x + (n.y + 1) * height]);
+            
+            if (n.x > 0) n.neighbors.Add(GetNodeAt(n.x - 1, n.y));
+            if (n.x < width - 1) n.neighbors.Add(GetNodeAt(n.x + 1, n.y));
+            if (n.y > 0) n.neighbors.Add(GetNodeAt(n.x, n.y - 1));
+            if (n.y < height - 1) n.neighbors.Add(GetNodeAt(n.x, n.y + 1));
+            
+            if (n.x > 0 && n.y > 0) n.neighbors.Add(GetNodeAt(n.x - 1, n.y - 1));
+            if (n.x < width - 1 && n.y < height - 1) n.neighbors.Add(GetNodeAt(n.x + 1, n.y + 1));
+            if (n.x > 0 && n.y < height - 1) n.neighbors.Add(GetNodeAt(n.x - 1, n.y + 1));
+            if (n.x < width - 1 && n.y > 0) n.neighbors.Add(GetNodeAt(n.x + 1, n.y - 1));
         }
     }
     public PFNode GetNodeAt(int x, int y)
     {
-        return nodes[x + y * height];
+        if (x < 0 || x >= width || y < 0 || y >= height) return null;
+        return nodes[x + y * width];
     }
 
     [ContextMenu("Delete Nodes")]

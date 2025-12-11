@@ -6,13 +6,7 @@ public class Flee : ISteering
     private Transform target;
     private float maxSpeed;
 
-    public Transform SetTarget
-    {
-        set
-        {
-            target = value;
-        }
-    }
+    public Transform SetTarget { set { target = value; } }
 
     public Flee(Transform target, Transform npcTransform, float maxSpeed)
     {
@@ -23,10 +17,7 @@ public class Flee : ISteering
 
     public Vector3 GetSteerDir(Vector3 currentVelocity)
     {
-        var dir = npcTransform.position - target.position; // Dirección = PosiciónInicial - PosiciónFinal
-        var desiredVelocity = dir.normalized * maxSpeed; // velocidad deseada = dirección normalizada * velocidad máxima
-        Vector3 steering = desiredVelocity - currentVelocity; // corrección de velocidad = velocidad deseada - actual
-        return currentVelocity += steering * Time.deltaTime; // a la velocidad actual se le suma la corrección (aceleración) * tiempo (Time.deltaTime)
+        if (target == null) return Vector3.zero;
+        return (npcTransform.position - target.position).normalized * maxSpeed;
     }
 }
-

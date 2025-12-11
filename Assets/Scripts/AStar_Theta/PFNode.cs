@@ -8,6 +8,7 @@ public class PFNode : MonoBehaviour
     public int y;
     public int cost = 1;
     public bool isBlocked = false;
+    
      public void Initialize(int x, int y)
     {
         this.x = x;
@@ -20,10 +21,5 @@ public class PFNode : MonoBehaviour
         {
             GetComponent<Renderer>().material.color = value;
         }
-    }
-    private void OnMouseDown()
-    {
-        PathFindingManager.instance.goal = this;
-        Color = Color.red;
     }
 }

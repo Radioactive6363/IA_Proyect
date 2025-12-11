@@ -6,13 +6,8 @@ public class Arrive : ISteering
     private Transform target;
     private float maxSpeed;
     private float slowingRange;
-    public Transform SetTarget
-    {
-        set
-        {
-            target = value;
-        }
-    }
+
+    public Transform SetTarget { set { target = value; } }
 
     public Arrive(Transform target, Transform npcTransform, float maxSpeed, float slowingRange)
     {
@@ -24,14 +19,20 @@ public class Arrive : ISteering
 
     public Vector3 GetSteerDir(Vector3 currentVelocity)
     {
+        if (target == null) return Vector3.zero;
 
-        var dir = target.position - npcTransform.position; // Dirección = PosiciónFinal - PosiciónInicial
-        var dist = dir.magnitude;
-        var rampedSpeed = maxSpeed * (dist / slowingRange); //La velocidad se hace proporcional a la distancia sobre el rango de desaceleracion
-        var clippedSpeed = Mathf.Min(rampedSpeed, maxSpeed); // limitamos la velocidad al maximo
+        Vector3 dir = target.position - npcTransform.position;
+        float dist = dir.magnitude;
+        
+        if (dist < 0.1f) return Vector3.zero;
 
-        var desiredVelocity = clippedSpeed * dir / dist; // a la velocidad calculada la multipliucamos por la dirección sin magnitud
-        Vector3 steering = desiredVelocity - currentVelocity; // corrección de velocidad = velocidad deseada - actual
-        return currentVelocity += steering * Time.deltaTime; // a la velocidad actual se le suma la corrección (aceleración) * tiempo (Time.deltaTime)
+        float targetSpeed = maxSpeed;
+        
+        if (dist < slowingRange)
+        {
+            targetSpeed = maxSpeed * (dist / slowingRange);
+        }
+
+        return dir.normalized * targetSpeed;
     }
 }
