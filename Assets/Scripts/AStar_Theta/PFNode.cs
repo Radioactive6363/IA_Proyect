@@ -8,22 +8,29 @@ public class PFNode : MonoBehaviour
     public int y;
     public int cost = 1;
     public bool isBlocked = false;
-     public void Initialize(int x, int y)
+
+    public void Initialize(int x, int y)
     {
         this.x = x;
         this.y = y;
+    }
+    
+    public void CheckBlocking(float radius, LayerMask obstacleMask)
+    {
+        if (Physics.CheckSphere(transform.position, radius, obstacleMask))
+        {
+            isBlocked = true;
+            if(TryGetComponent<Renderer>(out var r)) 
+                r.enabled = false;
+        }
     }
 
     public Color Color
     {
         set
         {
-            GetComponent<Renderer>().material.color = value;
+            if(TryGetComponent<Renderer>(out var r))
+                r.material.color = value;
         }
-    }
-    private void OnMouseDown()
-    {
-        PathFindingManager.instance.goal = this;
-        Color = Color.red;
     }
 }

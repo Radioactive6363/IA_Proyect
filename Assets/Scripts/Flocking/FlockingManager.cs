@@ -5,24 +5,23 @@ public class FlockingManager : MonoBehaviour
 {
     public static FlockingManager Instance { get; private set; }
 
-    [Header("Radius")]
-    [SerializeField] public float separationRadius;
-    [SerializeField] public float cohesionRadius;
     [Header("Weights")]
-    [SerializeField, Range(0, 3f)] public float separationWeight;
-    [SerializeField, Range(0, 1f)] public float cohesionWeight;
-    [SerializeField, Range(0, 1f)] public float alignmentWeight;
+    [Range(0, 5f)] public float separationWeight = 1.5f;
+    [Range(0, 5f)] public float cohesionWeight = 1f;
+    [Range(0, 5f)] public float alignmentWeight = 1f;
 
-    private List<Boid> boids = new();
+    private List<UnitBrain> allUnits = new List<UnitBrain>();
+    public List<UnitBrain> AllUnits => allUnits;
 
-    public List<Boid> AllBoids => boids;
-    void Awake()
+    void Awake() { Instance = this; }
+
+    public void AddUnit(UnitBrain unit)
     {
-        Instance = this;
+        if (!allUnits.Contains(unit)) allUnits.Add(unit);
     }
-
-    public void AddBoid(Boid boid)
-    { 
-        boids.Add(boid); 
+    
+    public void RemoveUnit(UnitBrain unit)
+    {
+        if (allUnits.Contains(unit)) allUnits.Remove(unit);
     }
 }

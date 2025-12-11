@@ -1,74 +1,45 @@
 using UnityEngine;
-using UnityEngine.Video;
-using static UnityEngine.UI.Image;
 
 public class FOV : MonoBehaviour
 {
-    [SerializeField] private GameObject _detectionImage;
-    [SerializeField] private GameObject _target;
-    [SerializeField] private float _angle;
-    [SerializeField] private float _distance;
+    [SerializeField] private float _angle = 90f;
+    [SerializeField] private float _distance = 15f;
     [SerializeField] private LayerMask _obstacleMask;
+    
+    public float ViewRadius => _distance;
     private Vector3 Origin => transform.position;
     private Vector3 Forward => transform.forward;
-    private IDetectable detectable;
-    void Start()
+    public bool IsInSight(Vector3 targetPos)
     {
-        detectable = _target.GetComponent<IDetectable>();
-    }
-
-    void Update()
-    {
+        Vector3 dirToTarget = targetPos - Origin;
+        if (dirToTarget.sqrMagnitude > _distance * _distance) 
+            return false;
         
-        _detectionImage.SetActive(CheckDetection());
+        if (Vector3.Angle(Forward, dirToTarget) > _angle / 2) 
+            return false;
+        
+        if (Physics.Linecast(Origin + Vector3.up * 0.5f, targetPos + Vector3.up * 0.5f, _obstacleMask)) 
+            return false;
+
+        return true;
+    }
+    
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, _distance);
+
+        Vector3 viewAngleA = DirFromAngle(-_angle / 2, false);
+        Vector3 viewAngleB = DirFromAngle(_angle / 2, false);
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(transform.position, transform.position + viewAngleA * _distance);
+        Gizmos.DrawLine(transform.position, transform.position + viewAngleB * _distance);
     }
 
-    public bool CheckDetection()
+    private Vector3 DirFromAngle(float angleInDegrees, bool angleIsGlobal)
     {
-        bool canSee = false;
-
-        for (int i = 0; i < detectable.DetectablePositions.Length; i++)
-        {
-            var currentPoint = detectable.DetectablePositions[i];
-            if (IsInRange(currentPoint.position) && IsInAngle(currentPoint.position) && IsInSight(currentPoint.position))
-            {
-                canSee = true;
-                break;
-            }
-        }
-        return canSee;
-    }
-
-    public bool IsInRange(Vector3 target)
-    {
-        var sqrDistance = (Origin - target).sqrMagnitude;
-        return sqrDistance <= _distance * _distance;
-    }
-    public bool IsInAngle(Vector3 target)
-    {
-        var dir = target - Origin;
-        return Vector3.Angle(Forward, dir) <= _angle / 2;
-    }
-    public bool IsInSight(Vector3 target)
-    {
-        return !Physics.Linecast(Origin, target, _obstacleMask);
-    }
-
-    private void OnDrawGizmos()
-    {
-        Color myColor = Color.blue;
-        myColor.a = 0.5f;
-        Gizmos.color = myColor;
-        Gizmos.DrawWireSphere(Origin, _distance);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawRay(Origin, Quaternion.Euler(0, _angle / 2, 0) * Forward * _distance);
-        Gizmos.DrawRay(Origin, Quaternion.Euler(0, -_angle / 2, 0) * Forward * _distance);
-
-        Gizmos.color = Color.green;
-        for (int i = 0; i < detectable.DetectablePositions.Length; i++)
-        {
-            Gizmos.DrawLine(Origin, detectable.DetectablePositions[i].position);
-        }
+        if (!angleIsGlobal) angleInDegrees += transform.eulerAngles.y;
+        return new Vector3(Mathf.Sin(angleInDegrees * Mathf.Deg2Rad), 0, Mathf.Cos(angleInDegrees * Mathf.Deg2Rad));
     }
 }

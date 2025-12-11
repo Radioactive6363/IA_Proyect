@@ -11,8 +11,10 @@ public class PFEntity : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.U))
         {
-            var closest = PathFindingManager.instance.Closest(transform.position);
-            path = PathFindingManager.instance.GetPath(closest);
+            var startNode = PathFindingManager.instance.Closest(transform.position);
+            var endNode = PathFindingManager.instance.Closest(Vector3.zero); 
+            
+            path = PathFindingManager.instance.GetPath(startNode, endNode); 
         }
 
         if (path != null && path.Count > 0)
