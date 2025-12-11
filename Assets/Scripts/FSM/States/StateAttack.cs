@@ -32,7 +32,6 @@ public class StateAttack : State<UnitInputs>
         if (dist <= _brain.attackRange)
         {
             _brain.ApplyMovement(Vector3.zero, false);
-            
             Vector3 dirToEnemy = (enemyTransform.position - _brain.transform.position).normalized;
             if(dirToEnemy != Vector3.zero)
                 _brain.transform.forward = Vector3.Lerp(_brain.transform.forward, dirToEnemy, 10 * Time.deltaTime);

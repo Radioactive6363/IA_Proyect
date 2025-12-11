@@ -8,14 +8,19 @@ public class PFGrid : MonoBehaviour
     [SerializeField] int height;
     [SerializeField] float distance;
     [SerializeField] int baseCost;
+    
+    [SerializeField] LayerMask obstacleMask; 
 
     public PFNode[] Nodes => nodes;
     
     [ContextMenu("Instantiate Nodes")]
     public void InstantiateGrid()
     {
+        if (nodes != null) DeleteNodes();
+
         nodes = new PFNode[width * height];
         int count = 0;
+        
         for (int j = 0; j < height; j++)
         {
             for (int i = 0; i < width; i++)
@@ -23,28 +28,43 @@ public class PFGrid : MonoBehaviour
                 PFNode n = Instantiate(prefab,
                     transform.position +
                     new Vector3(i * distance, 0, j * distance), transform.rotation, transform);
-                nodes[count] = n;
+                
                 n.Initialize(i, j);
 
+                n.CheckBlocking(distance / 2.5f, obstacleMask); 
+                
+                nodes[count] = n;
                 count++;
             }
         }
+        
         count = 0;
         for (int i = 0; i < nodes.Length; i++)
         {
             PFNode n = nodes[i];
             
-            if (n.x > 0) n.neighbors.Add(GetNodeAt(n.x - 1, n.y));
-            if (n.x < width - 1) n.neighbors.Add(GetNodeAt(n.x + 1, n.y));
-            if (n.y > 0) n.neighbors.Add(GetNodeAt(n.x, n.y - 1));
-            if (n.y < height - 1) n.neighbors.Add(GetNodeAt(n.x, n.y + 1));
+            if (n.isBlocked) continue; 
             
-            if (n.x > 0 && n.y > 0) n.neighbors.Add(GetNodeAt(n.x - 1, n.y - 1));
-            if (n.x < width - 1 && n.y < height - 1) n.neighbors.Add(GetNodeAt(n.x + 1, n.y + 1));
-            if (n.x > 0 && n.y < height - 1) n.neighbors.Add(GetNodeAt(n.x - 1, n.y + 1));
-            if (n.x < width - 1 && n.y > 0) n.neighbors.Add(GetNodeAt(n.x + 1, n.y - 1));
+            TryAddNeighbor(n, n.x - 1, n.y);
+            TryAddNeighbor(n, n.x + 1, n.y);
+            TryAddNeighbor(n, n.x, n.y - 1);
+            TryAddNeighbor(n, n.x, n.y + 1);
+            
+            TryAddNeighbor(n, n.x - 1, n.y - 1);
+            TryAddNeighbor(n, n.x + 1, n.y + 1);
+            TryAddNeighbor(n, n.x - 1, n.y + 1);
+            TryAddNeighbor(n, n.x + 1, n.y - 1);
         }
     }
+    void TryAddNeighbor(PFNode current, int x, int y)
+    {
+        PFNode neighbor = GetNodeAt(x, y);
+        if (neighbor != null && !neighbor.isBlocked)
+        {
+            current.neighbors.Add(neighbor);
+        }
+    }
+
     public PFNode GetNodeAt(int x, int y)
     {
         if (x < 0 || x >= width || y < 0 || y >= height) return null;
@@ -54,9 +74,10 @@ public class PFGrid : MonoBehaviour
     [ContextMenu("Delete Nodes")]
     public void DeleteNodes()
     {
+        if (nodes == null) return;
         for (int i = 0; i < nodes.Length; i++)
         {
-            DestroyImmediate(nodes[i].gameObject);
+            if(nodes[i] != null) DestroyImmediate(nodes[i].gameObject);
         }
         nodes = null;
     }
@@ -66,7 +87,7 @@ public class PFGrid : MonoBehaviour
     {
         for (int i = 0; i < nodes.Length; i++)
         {
-            nodes[i].cost = baseCost;
+            if(nodes[i] != null) nodes[i].cost = baseCost;
         }
     }
 }

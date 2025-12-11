@@ -1,1 +1,5 @@
-public enum BattleTeams { TeamA, TeamB }
+public enum BattleTeams
+{
+    Red,
+    Blue
+}
