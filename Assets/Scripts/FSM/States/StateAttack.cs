@@ -17,14 +17,33 @@ public class StateAttack : State<UnitInputs>
             _brain.SetState(UnitInputs.LowHealth);
             return;
         }
-
+        
         Transform targetTransform = null;
+        
         if (_brain.lastAttacker != null && _brain.lastAttacker.currentHealth > 0)
+        {
             targetTransform = _brain.lastAttacker.transform;
-        else
-            targetTransform = _brain.GetNearestEnemy();
+        }
+        else if (_brain.commandTarget != null)
+        {
+            var targetBrain = _brain.commandTarget.GetComponent<UnitBrain>();
+            if (targetBrain != null && targetBrain.currentHealth > 0)
+            {
+                targetTransform = _brain.commandTarget;
+            }
+            else
+            {
+                _brain.commandTarget = null; 
+            }
+        }
 
+        if (targetTransform == null)
+        {
+            targetTransform = _brain.GetNearestEnemy();
+        }
+        
         if (targetTransform == null) {
+            _brain.commandTarget = null;
             _brain.SetState(UnitInputs.LostSight);
             return;
         }
@@ -37,11 +56,10 @@ public class StateAttack : State<UnitInputs>
             
             Vector3 dirToEnemy = (targetTransform.position - _brain.transform.position).normalized;
             dirToEnemy.y = 0;
-            
+
             if (dirToEnemy != Vector3.zero)
             {
                 Quaternion lookRot = Quaternion.LookRotation(dirToEnemy);
-                
                 _brain.transform.rotation = Quaternion.Slerp(_brain.transform.rotation, lookRot, 15f * Time.deltaTime);
             }
             
@@ -54,5 +72,11 @@ public class StateAttack : State<UnitInputs>
             Vector3 dir = _persuit.GetSteerDir(_brain.Velocity);
             _brain.ApplyMovement(dir, false); 
         }
+    }   
+    public override void Exit()
+    {
+        _brain.commandTarget = null;
+        _brain.lastAttacker = null;
+        _persuit.SetTarget = null;
     }
 }

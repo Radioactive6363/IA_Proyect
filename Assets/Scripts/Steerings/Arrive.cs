@@ -20,14 +20,16 @@ public class Arrive : ISteering
     public Vector3 GetSteerDir(Vector3 currentVelocity)
     {
         if (target == null) return Vector3.zero;
-
-        Vector3 dir = target.position - npcTransform.position;
-        float dist = dir.magnitude;
         
+        Vector3 dir = target.position - npcTransform.position;
+        dir.y = 0;
+
+        float dist = dir.magnitude;
+    
         if (dist < 0.1f) return Vector3.zero;
 
         float targetSpeed = maxSpeed;
-        
+    
         if (dist < slowingRange)
         {
             targetSpeed = maxSpeed * (dist / slowingRange);

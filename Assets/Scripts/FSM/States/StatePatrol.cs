@@ -25,9 +25,10 @@ public class StatePatrol : State<UnitInputs>
 
     public override void Execute()
     {
-        if (_brain.GetNearestEnemy() != null) 
+        var enemy = _brain.GetNearestEnemy();
+        if (enemy != null) 
         {
-            _brain.SetState(UnitInputs.EnemySpotted);
+            _brain.AlertTeam(enemy); 
             return;
         }
         

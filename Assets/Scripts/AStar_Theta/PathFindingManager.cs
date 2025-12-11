@@ -33,8 +33,7 @@ public class PathFindingManager : MonoBehaviour
         }
         return closest;
     }
-
-    // Firma actualizada para recibir Inicio y Fin
+    
     public List<PFNode> GetPath(PFNode start, PFNode end)
     {
         bool IsObjective(PFNode node) => node == end;

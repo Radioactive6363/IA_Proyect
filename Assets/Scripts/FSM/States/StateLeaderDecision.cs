@@ -18,6 +18,13 @@ public class StateLeaderDecision : State<UnitInputs>
 
     public override void Execute()
     {
+        var enemy = _brain.GetNearestEnemy();
+        if (enemy != null) 
+        {
+            _brain.AlertTeam(enemy);
+            return; 
+        }
+        
         int enemies = 0;
         foreach (var unit in FlockingManager.Instance.AllUnits)
         {
@@ -29,7 +36,6 @@ public class StateLeaderDecision : State<UnitInputs>
         
         if (enemies > 0)
         {
-            // Watching enemys : High Priority Attack
             _roulette.UpdateWeight(UnitInputs.DecisionAttack, 0.8f);
             _roulette.UpdateWeight(UnitInputs.DecisionPatrol, 0.0f); 
         }

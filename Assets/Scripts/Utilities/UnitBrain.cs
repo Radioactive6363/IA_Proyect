@@ -21,6 +21,7 @@ public class UnitBrain : SteeringEntity
 
     [Header("Combat Memory")]
     public UnitBrain lastAttacker;
+    public Transform commandTarget;
 
     [Header("Sensors & Visuals")]
     public FOV fov;
@@ -106,6 +107,7 @@ public class UnitBrain : SteeringEntity
             
             //Emergency
             leaderLogic.AddTransition(UnitInputs.UnderAttack, attack);
+            leaderLogic.AddTransition(UnitInputs.EnemySpotted, attack);
             
             patrol.AddTransition(UnitInputs.EnemySpotted, attack);
             patrol.AddTransition(UnitInputs.UnderAttack, attack);
@@ -175,8 +177,9 @@ public class UnitBrain : SteeringEntity
         }
         
         Vector3 avoidanceDir = obstacleAvoidance.GetDir2(desiredVelocity);
+        bool isParking = desiredVelocity.sqrMagnitude < (MaxSpeed * 0.3f) * (MaxSpeed * 0.3f);
         
-        if(avoidanceDir != Vector3.zero) 
+        if(avoidanceDir != Vector3.zero && !isParking)
         {
             totalForce += Steer(avoidanceDir * MaxSpeed) * 5.0f; 
             
@@ -422,5 +425,23 @@ public class UnitBrain : SteeringEntity
         UpdateLeaderVisuals();
         InitFSM();
         SetState(UnitInputs.DecisionRetreat);
+    }
+    
+    public void AlertTeam(Transform enemyTarget)
+    {
+        var allUnits = FlockingManager.Instance.AllUnits;
+
+        foreach (var unit in allUnits)
+        {
+            if (unit != null && unit.teamID == this.teamID && unit.currentHealth > 0)
+            {
+                if (unit.CurrentStateName == "StateAttack" && unit.commandTarget == enemyTarget) continue;
+                
+                if (unit.CurrentStateName == "StateFlee") continue;
+
+                unit.commandTarget = enemyTarget; 
+                unit.SetState(UnitInputs.EnemySpotted);
+            }
+        }
     }
 }
