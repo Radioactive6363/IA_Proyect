@@ -111,6 +111,7 @@ MonoBehaviour:
   attackRange: 2
   attackRate: 1
   lastAttacker: {fileID: 0}
+  commandTarget: {fileID: 0}
   fov: {fileID: 3794616967589335663}
   obstacleLayer:
     serializedVersion: 2
@@ -122,7 +123,7 @@ MonoBehaviour:
   _redColor: {r: 1, g: 0.2, b: 0.2, a: 1}
   _blueColor: {r: 0.2, g: 0.2, b: 1, a: 1}
   viewRadius: 10
-  separationRadius: 2.5
+  separationRadius: 4.5
   cohesionRadius: 7
   alignmentRadius: 7
   ghostLayerName: Ghost

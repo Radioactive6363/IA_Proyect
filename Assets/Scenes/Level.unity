@@ -68658,8 +68658,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitPrefab: {fileID: 272188894977779427, guid: d68644bc4b449ab43ab8a4b250be6d26, type: 3}
-  redSoldierCount: 5
-  blueSoldierCount: 5
+  redSoldierCount: 50
+  blueSoldierCount: 50
   redSpawnPoint: {fileID: 174034016}
   blueSpawnPoint: {fileID: 34975615}
   spawnRadius: 5
@@ -137585,15 +137585,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5578603324302692751, guid: 52bd30b73b328314286a51ce4e03c46d, type: 3}
       propertyPath: cohesionWeight
-      value: 0.5
+      value: 0.33
       objectReference: {fileID: 0}
     - target: {fileID: 5578603324302692751, guid: 52bd30b73b328314286a51ce4e03c46d, type: 3}
       propertyPath: alignmentWeight
-      value: 1
+      value: 0.68
       objectReference: {fileID: 0}
     - target: {fileID: 5578603324302692751, guid: 52bd30b73b328314286a51ce4e03c46d, type: 3}
       propertyPath: separationWeight
-      value: 3
+      value: 4.06
       objectReference: {fileID: 0}
     - target: {fileID: 6956415354404071255, guid: 52bd30b73b328314286a51ce4e03c46d, type: 3}
       propertyPath: m_Name
