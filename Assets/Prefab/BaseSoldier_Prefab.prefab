@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 657105579540148753}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.2925363, y: 3.3236346, z: 2.0547678}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -125,6 +125,7 @@ MonoBehaviour:
   separationRadius: 2.5
   cohesionRadius: 7
   alignmentRadius: 7
+  ghostLayerName: Ghost
 --- !u!114 &3794616967589335663
 MonoBehaviour:
   m_ObjectHideFlags: 0
