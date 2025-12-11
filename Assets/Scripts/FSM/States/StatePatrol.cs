@@ -57,6 +57,7 @@ public class StatePatrol : State<UnitInputs>
         
         if (_path == null || _path.Count == 0)
         {
+            Debug.Log("Finding New Destiny");
             SetRandomDestination();
             return;
         }
@@ -64,12 +65,11 @@ public class StatePatrol : State<UnitInputs>
         if (_currentNode < _path.Count)
         {
             Vector3 targetNodePos = _path[_currentNode].transform.position;
-
-            Vector3 dir = (targetNodePos - _brain.transform.position).normalized * _brain.MaxSpeed;
             
+            Vector3 dir = (targetNodePos - _brain.transform.position).normalized * _brain.MaxSpeed;
             _brain.ApplyMovement(dir, false);
             
-            if (Vector3.Distance(_brain.transform.position, targetNodePos) < 1.5f)
+            if (Vector3.Distance(_brain.transform.position, targetNodePos) < 3.0f)
             {
                 _currentNode++;
             }
@@ -85,13 +85,23 @@ public class StatePatrol : State<UnitInputs>
     {
         if (_brain.myLeader == null) return;
         
-        float stopDistance = 3f;
+        float distToLeader = Vector3.Distance(_brain.transform.position, _brain.myLeader.transform.position);
         
-        var arrive = new Arrive(_brain.myLeader.transform, _brain.transform, _brain.MaxSpeed, 5f);
+        float stopDistance = 4.0f; 
+        
+        var arrive = new Arrive(_brain.myLeader.transform, _brain.transform, _brain.MaxSpeed, 3f);
         Vector3 followForce = arrive.GetSteerDir(_brain.Velocity);
 
-        if (Vector3.Distance(_brain.transform.position, _brain.myLeader.transform.position) < stopDistance)
-            followForce = Vector3.zero; 
+        if (distToLeader < stopDistance)
+        {
+            followForce = Vector3.zero;
+            
+            if (_brain.myLeader.Velocity.sqrMagnitude < 0.1f)
+            {
+                _brain.ApplyMovement(Vector3.zero, true); 
+                return;
+            }
+        }
 
         _brain.ApplyMovement(followForce, true);
     }

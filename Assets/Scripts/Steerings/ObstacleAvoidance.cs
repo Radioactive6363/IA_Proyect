@@ -19,20 +19,29 @@ public class ObstacleAvoidance
         _obsMask = obsMask;
     }
     
-    public Vector3 GetDir2(Vector3 currVelocity)
+    public Vector3 GetDir2(Vector3 checkVector)
     {
-        Vector3 dir = currVelocity.sqrMagnitude > 0 ? currVelocity.normalized : npcTransform.forward;
+        Vector3 dir = checkVector.sqrMagnitude > 0.1f ? checkVector.normalized : npcTransform.forward;
         
-        if (Physics.SphereCast(npcTransform.position, _personalArea, dir, out hit, _radius, _obsMask))
+        Vector3 origin = npcTransform.position + Vector3.up * 1.0f;
+        
+        if (Physics.SphereCast(origin, _personalArea, dir, out hit, _radius, _obsMask))
         {
             Vector3 hitNormal = hit.normal;
-            Vector3 avoidDir = Vector3.Reflect(dir, hitNormal); 
             
-            Debug.DrawLine(npcTransform.position, hit.point, Color.red);
-            Debug.DrawRay(hit.point, avoidDir, Color.green);
+            Vector3 slideDir = Vector3.ProjectOnPlane(dir, hitNormal).normalized;
             
-            return avoidDir.normalized * currVelocity.magnitude;
+            if (slideDir == Vector3.zero)
+            {
+                slideDir = Vector3.Cross(hitNormal, Vector3.up).normalized;
+            }
+
+            Debug.DrawLine(origin, hit.point, Color.red);
+            Debug.DrawRay(hit.point, slideDir * 2f, Color.cyan);
+            
+            return slideDir; 
         }
-        return currVelocity;
+        
+        return Vector3.zero;
     }
 }

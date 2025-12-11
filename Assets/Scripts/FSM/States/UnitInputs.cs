@@ -1,15 +1,17 @@
 public enum UnitInputs
 {
-    // Sensores y Entorno
+    //States
     None,
-    EnemySpotted,    // Vi a un enemigo
-    LostSight,       // Perdí de vista al enemigo
-    LowHealth,       // Vida baja (Trigger de supervivencia)
-    Safe,            // Ya no hay peligro
-    ArrivedAtPoint,  // Llegué al destino
+    EnemySpotted,
+    LostSight,
+    LowHealth,
+    Safe,
+    UnderAttack,
     
-    // Decisiones Tácticas (Roulette / Líder)
-    DecisionAttack,  // La ruleta decidió atacar
-    DecisionRetreat, // La ruleta decidió huir
-    DecisionDefend   // La ruleta decidió cubrirse
+    //Tactical Decisions Leader
+    DecisionAttack,
+    DecisionRetreat,
+    DecisionPatrol,
+    DecisionIdle
+    
 }

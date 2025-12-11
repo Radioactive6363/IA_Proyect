@@ -1,8 +1,9 @@
-using UnityEngine;
+using System;
 
 public class FSM<T>
 {
     IState<T> current;
+    public event Action<string> OnStateChanged;
 
     public FSM(IState<T> initial)
     {
@@ -22,6 +23,13 @@ public class FSM<T>
             current.Exit();
             current = newState;
             current.Enter();
+            OnStateChanged?.Invoke(current.GetType().Name);
         }
+    }
+    
+    //Debugging
+    public string GetCurrentStateName()
+    {
+        return current != null ? current.GetType().Name : "None";
     }
 }

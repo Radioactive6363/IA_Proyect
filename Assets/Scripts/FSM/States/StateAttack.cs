@@ -17,31 +17,41 @@ public class StateAttack : State<UnitInputs>
             _brain.SetState(UnitInputs.LowHealth);
             return;
         }
-        var enemyTransform = _brain.GetNearestEnemy();
-        
-        if (enemyTransform == null) {
+
+        Transform targetTransform = null;
+        if (_brain.lastAttacker != null && _brain.lastAttacker.currentHealth > 0)
+            targetTransform = _brain.lastAttacker.transform;
+        else
+            targetTransform = _brain.GetNearestEnemy();
+
+        if (targetTransform == null) {
             _brain.SetState(UnitInputs.LostSight);
             return;
         }
-        UnitBrain enemyBrain = enemyTransform.GetComponent<UnitBrain>();
-        if (enemyBrain == null) return;
         
-        float dist = Vector3.Distance(_brain.transform.position, enemyTransform.position);
-        
+        float dist = Vector3.Distance(_brain.transform.position, targetTransform.position);
         
         if (dist <= _brain.attackRange)
         {
-            _brain.ApplyMovement(Vector3.zero, false);
-            Vector3 dirToEnemy = (enemyTransform.position - _brain.transform.position).normalized;
-            if(dirToEnemy != Vector3.zero)
-                _brain.transform.forward = Vector3.Lerp(_brain.transform.forward, dirToEnemy, 10 * Time.deltaTime);
-            _brain.TryAttack(enemyBrain);
+            _brain.StopMomentum(); 
+            
+            Vector3 dirToEnemy = (targetTransform.position - _brain.transform.position).normalized;
+            dirToEnemy.y = 0;
+            
+            if (dirToEnemy != Vector3.zero)
+            {
+                Quaternion lookRot = Quaternion.LookRotation(dirToEnemy);
+                
+                _brain.transform.rotation = Quaternion.Slerp(_brain.transform.rotation, lookRot, 15f * Time.deltaTime);
+            }
+            
+            var enemyBrain = targetTransform.GetComponent<UnitBrain>();
+            if(enemyBrain != null) _brain.TryAttack(enemyBrain);
         }
         else
         {
-            _persuit.SetTarget = enemyTransform;
+            _persuit.SetTarget = targetTransform;
             Vector3 dir = _persuit.GetSteerDir(_brain.Velocity);
-            
             _brain.ApplyMovement(dir, false); 
         }
     }

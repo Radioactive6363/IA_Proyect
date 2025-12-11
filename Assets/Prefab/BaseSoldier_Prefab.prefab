@@ -60,7 +60,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -110,17 +110,21 @@ MonoBehaviour:
   attackDamage: 10
   attackRange: 2
   attackRate: 1
+  lastAttacker: {fileID: 0}
   fov: {fileID: 3794616967589335663}
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 8
   _animator: {fileID: 2277112873099874202}
   _healthBar: {fileID: 8070059956857049332}
-  viewRadius: 10
-  separationRadius: 2.5
-  cohesionRadius: 7
-  alignmentRadius: 7
   _modelRenderer: {fileID: 395659386541283397}
   _leaderAccessory: {fileID: 375335597944322380}
   _redColor: {r: 1, g: 0.2, b: 0.2, a: 1}
   _blueColor: {r: 0.2, g: 0.2, b: 1, a: 1}
+  viewRadius: 10
+  separationRadius: 2.5
+  cohesionRadius: 7
+  alignmentRadius: 7
 --- !u!114 &3794616967589335663
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,7 +200,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.49748042, g: 1, b: 0.41037738, a: 1}
+  m_Color: {r: 0, g: 1, b: 0.016678333, a: 0.5372549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -388,7 +392,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.3882353}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

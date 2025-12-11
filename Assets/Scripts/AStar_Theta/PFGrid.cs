@@ -8,8 +8,11 @@ public class PFGrid : MonoBehaviour
     [SerializeField] int height;
     [SerializeField] float distance;
     [SerializeField] int baseCost;
+    [SerializeField] LayerMask obstacleMask;
     
-    [SerializeField] LayerMask obstacleMask; 
+    [Header("Agent Settings")]
+    [Tooltip("Collider of Unit + SecurityMargin")]
+    [SerializeField] float agentRadius = 0.6f; 
 
     public PFNode[] Nodes => nodes;
     
@@ -30,8 +33,7 @@ public class PFGrid : MonoBehaviour
                     new Vector3(i * distance, 0, j * distance), transform.rotation, transform);
                 
                 n.Initialize(i, j);
-
-                n.CheckBlocking(distance / 2.5f, obstacleMask); 
+                n.CheckBlocking(agentRadius, obstacleMask); 
                 
                 nodes[count] = n;
                 count++;
@@ -42,7 +44,6 @@ public class PFGrid : MonoBehaviour
         for (int i = 0; i < nodes.Length; i++)
         {
             PFNode n = nodes[i];
-            
             if (n.isBlocked) continue; 
             
             TryAddNeighbor(n, n.x - 1, n.y);
@@ -56,6 +57,7 @@ public class PFGrid : MonoBehaviour
             TryAddNeighbor(n, n.x + 1, n.y - 1);
         }
     }
+    
     void TryAddNeighbor(PFNode current, int x, int y)
     {
         PFNode neighbor = GetNodeAt(x, y);
